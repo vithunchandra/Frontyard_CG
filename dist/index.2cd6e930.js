@@ -561,25 +561,19 @@ var _three = require("three");
 var _orbitControls = require("../node_modules/three/examples/jsm/controls/OrbitControls");
 var _gltfloader = require("../node_modules/three/examples/jsm/loaders/GLTFLoader");
 var _clothPng = require("./assets/Cloth.png");
+// System Inizialization
 const scene = new _three.Scene();
 const camera = new _three.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new _three.WebGLRenderer({
     antialias: true
 });
+//Camera Controls
 const controls = new (0, _orbitControls.OrbitControls)(camera, renderer.domElement);
+//Import Assets
 const testingCharacterURL = new URL(require("be097b1d8b748160"));
+const houseUrl = new URL(require("a75c11b314255a3e"));
 const texture = new _three.TextureLoader().load(_clothPng);
-camera.position.set(0, 0, 10);
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = _three.BasicShadowMap;
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(devicePixelRatio);
-document.body.appendChild(renderer.domElement);
-scene.backgroundColor = new _three.Color(255, 255, 255);
-const pointLight = new _three.PointLight(0xffffff, 1, 100);
-pointLight.castShadow = true;
-pointLight.position.set(0, 20, 20);
-scene.add(pointLight);
+//Loading Assets
 let testingCharacter = undefined;
 new (0, _gltfloader.GLTFLoader)().load(testingCharacterURL.href, (result)=>{
     testingCharacter = result.scene.children[0];
@@ -587,15 +581,36 @@ new (0, _gltfloader.GLTFLoader)().load(testingCharacterURL.href, (result)=>{
     testingCharacter.position.set(0, 0.7, 0);
     scene.add(testingCharacter);
 });
-const plane = new _three.PlaneGeometry(100, 100, 10, 10);
+let house = undefined;
+new (0, _gltfloader.GLTFLoader)().load(houseUrl.href, (result)=>{
+    house = result.scene.children[0];
+    console.log(house);
+    house.castShadow = true;
+    house.position.set(10, 0, 10);
+    scene.add(house);
+});
+camera.position.set(0, 0, 10);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = _three.PCFSoftShadowMap;
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(devicePixelRatio);
+document.body.appendChild(renderer.domElement);
+scene.backgroundColor = new _three.Color(255, 255, 255);
+const light = new _three.DirectionalLight(0xffffff, 1);
+light.position.set(10, 10, 0);
+light.target.position.set(0, 0, 0);
+light.castShadow = true;
+light.shadow.mapSize.set(512, 512);
+scene.add(light);
+scene.add(light.target);
+const plane = new _three.PlaneGeometry(10000, 10000, 100, 100);
 const planeMaterial = new _three.MeshPhongMaterial({
-    map: texture
+    color: 0x00ffff
 });
 const planeMesh = new _three.Mesh(plane, planeMaterial);
 planeMesh.rotation.x = -Math.PI / 2;
 planeMesh.position.set(0, -1, 0);
 planeMesh.receiveShadow = true;
-planeMesh.castShadow = true;
 scene.add(planeMesh);
 let keyboard = [];
 document.body.addEventListener("keydown", (evt)=>{
@@ -615,6 +630,10 @@ window.addEventListener("resize", ()=>{
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateMatrix();
 });
+//utils
+function randomNumber() {
+    return Math.floor(Math.random() * 50) + 1;
+}
 let clock = new _three.Clock();
 function draw() {
     requestAnimationFrame(draw);
@@ -623,7 +642,7 @@ function draw() {
 }
 draw();
 
-},{"three":"ktPTu","../node_modules/three/examples/jsm/controls/OrbitControls":"7mqRv","../node_modules/three/examples/jsm/loaders/GLTFLoader":"dVRsF","./assets/Cloth.png":"663Y5","be097b1d8b748160":"c2dXg"}],"ktPTu":[function(require,module,exports) {
+},{"three":"ktPTu","../node_modules/three/examples/jsm/controls/OrbitControls":"7mqRv","../node_modules/three/examples/jsm/loaders/GLTFLoader":"dVRsF","./assets/Cloth.png":"663Y5","be097b1d8b748160":"c2dXg","a75c11b314255a3e":"3sPsz"}],"ktPTu":[function(require,module,exports) {
 /**
  * @license
  * Copyright 2010-2023 Three.js Authors
@@ -34154,6 +34173,9 @@ exports.getOrigin = getOrigin;
 },{}],"c2dXg":[function(require,module,exports) {
 module.exports = require("aa740d512e1e6863").getBundleURL("eFXzA") + "characterTesting.f4dd0183.gltf" + "?" + Date.now();
 
-},{"aa740d512e1e6863":"lgJ39"}]},["ezkqR","dfcLp"], "dfcLp", "parcelRequire94c2")
+},{"aa740d512e1e6863":"lgJ39"}],"3sPsz":[function(require,module,exports) {
+module.exports = require("683d2b8cc22b46f8").getBundleURL("eFXzA") + "House_1.b68df84a.gltf" + "?" + Date.now();
+
+},{"683d2b8cc22b46f8":"lgJ39"}]},["ezkqR","dfcLp"], "dfcLp", "parcelRequire94c2")
 
 //# sourceMappingURL=index.2cd6e930.js.map
