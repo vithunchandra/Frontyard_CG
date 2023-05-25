@@ -571,39 +571,73 @@ const renderer = new _three.WebGLRenderer({
 const controls = new (0, _orbitControls.OrbitControls)(camera, renderer.domElement);
 //Import Assets
 const testingCharacterURL = new URL(require("be097b1d8b748160"));
-const houseUrl = new URL(require("a75c11b314255a3e"));
+const houseUrl = {
+    url: new URL(require("a75c11b314255a3e")),
+    position: {
+        x: 20,
+        y: -0.7,
+        z: 3
+    }
+};
+const towerUrl = {
+    url: new URL(require("ec82e908a47f0aec")),
+    position: {
+        x: -20,
+        y: -0.7,
+        z: 5
+    }
+};
+const buildingUrl = [
+    houseUrl,
+    towerUrl
+];
 const texture = new _three.TextureLoader().load(_clothPng);
 //Loading Assets
 let testingCharacter = undefined;
 new (0, _gltfloader.GLTFLoader)().load(testingCharacterURL.href, (result)=>{
     testingCharacter = result.scene.children[0];
-    testingCharacter.castShadow = true;
+    testingCharacter.traverse((node)=>{
+        if (node.isMesh) node.castShadow = true;
+    });
     testingCharacter.position.set(0, 0.7, 0);
     scene.add(testingCharacter);
 });
-let house = undefined;
-new (0, _gltfloader.GLTFLoader)().load(houseUrl.href, (result)=>{
-    house = result.scene.children[0];
-    console.log(house);
-    house.castShadow = true;
-    house.position.set(10, 0, 10);
-    scene.add(house);
+let buildings = [];
+for (const building of buildingUrl)new (0, _gltfloader.GLTFLoader)().load(building.url.href, (result)=>{
+    const object = result.scene.children[0];
+    object.traverse((node)=>{
+        if (node.isMesh) node.castShadow = true;
+    });
+    const position = building.position;
+    object.position.set(position.x, position.y, position.z);
+    scene.add(object);
+    buildings.push(object);
 });
 camera.position.set(0, 0, 10);
 renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = _three.PCFSoftShadowMap;
+renderer.shadowMap.type = _three.PCFSoftShadowMap; //THREE.BasicShadowMap | THREE.PCFShadowMap |  THREE.VSMShadowMap | THREE.PCFSoftShadowMap
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(devicePixelRatio);
 document.body.appendChild(renderer.domElement);
 scene.backgroundColor = new _three.Color(255, 255, 255);
 const light = new _three.DirectionalLight(0xffffff, 1);
-light.position.set(10, 10, 0);
-light.target.position.set(0, 0, 0);
+light.position.set(300, 300, 0);
+light.target.position.set(-20, 0, 5);
 light.castShadow = true;
-light.shadow.mapSize.set(512, 512);
+light.shadow.mapSize.set(2048, 2048);
+light.shadow.bias = 0.9;
+light.shadow.camera.near = 0.0; // default
+light.shadow.camera.far = 5000; // default
+light.shadow.camera.left = -100;
+light.shadow.camera.right = 100;
+light.shadow.camera.top = 100;
+light.shadow.camera.bottom = -100;
 scene.add(light);
 scene.add(light.target);
-const plane = new _three.PlaneGeometry(10000, 10000, 100, 100);
+scene.add(new _three.CameraHelper(light.shadow.camera));
+const lightHelper = new _three.DirectionalLightHelper(light, 10, 0xff00ff);
+scene.add(lightHelper);
+const plane = new _three.PlaneGeometry(1000, 1000, 100, 100);
 const planeMaterial = new _three.MeshPhongMaterial({
     color: 0x00ffff
 });
@@ -642,7 +676,7 @@ function draw() {
 }
 draw();
 
-},{"three":"ktPTu","../node_modules/three/examples/jsm/controls/OrbitControls":"7mqRv","../node_modules/three/examples/jsm/loaders/GLTFLoader":"dVRsF","./assets/Cloth.png":"663Y5","be097b1d8b748160":"c2dXg","a75c11b314255a3e":"3sPsz"}],"ktPTu":[function(require,module,exports) {
+},{"three":"ktPTu","../node_modules/three/examples/jsm/controls/OrbitControls":"7mqRv","../node_modules/three/examples/jsm/loaders/GLTFLoader":"dVRsF","./assets/Cloth.png":"663Y5","be097b1d8b748160":"c2dXg","ec82e908a47f0aec":"9cd6R","a75c11b314255a3e":"3sPsz"}],"ktPTu":[function(require,module,exports) {
 /**
  * @license
  * Copyright 2010-2023 Three.js Authors
@@ -34173,7 +34207,10 @@ exports.getOrigin = getOrigin;
 },{}],"c2dXg":[function(require,module,exports) {
 module.exports = require("aa740d512e1e6863").getBundleURL("eFXzA") + "characterTesting.f4dd0183.gltf" + "?" + Date.now();
 
-},{"aa740d512e1e6863":"lgJ39"}],"3sPsz":[function(require,module,exports) {
+},{"aa740d512e1e6863":"lgJ39"}],"9cd6R":[function(require,module,exports) {
+module.exports = require("d775be1819138ac8").getBundleURL("eFXzA") + "Tower.0867ce29.gltf" + "?" + Date.now();
+
+},{"d775be1819138ac8":"lgJ39"}],"3sPsz":[function(require,module,exports) {
 module.exports = require("683d2b8cc22b46f8").getBundleURL("eFXzA") + "House_1.b68df84a.gltf" + "?" + Date.now();
 
 },{"683d2b8cc22b46f8":"lgJ39"}]},["ezkqR","dfcLp"], "dfcLp", "parcelRequire94c2")
