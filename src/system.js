@@ -13,29 +13,60 @@ const camera = new THREE.PerspectiveCamera(
 );
 const renderer = new THREE.WebGLRenderer({antialias: true});
 
-
 //Camera Controls
 const controls = new OrbitControls(camera, renderer.domElement);
 
 //Import Assets
 const testingCharacterURL = new URL('./assets/characterTesting.gltf', import.meta.url);
-const houseUrl = {
-    url: new URL('./assets/House_1.gltf', import.meta.url),
-    position: {
-        x: 20,
-        y: -0.7,
-        z: 3
+const buildingUrl = [
+    {
+        url: new URL('./assets/House_1.gltf', import.meta.url),
+        position: {
+            x: 20,
+            y: -1,
+            z: 3
+        }
+    }, {
+        url: new URL('./assets/House_2.gltf', import.meta.url),
+        position: {
+            x: -50,
+            y: 2,
+            z: 30
+        }
+    },{
+        url: new URL('./assets/House_3.gltf', import.meta.url),
+        position: {
+            x: 50,
+            y: 2,
+            z: 15
+        }
+    },{
+        url: new URL('./assets/Tower.gltf', import.meta.url),
+        position: {
+            x: -20,
+            y: -1,
+            z: 5
+        }
     }
-};
-const towerUrl = {
-    url: new URL('./assets/Tower.gltf', import.meta.url),
-    position: {
-        x: -20,
-        y: -0.7,
-        z: 5
+];
+const ballUrl = new URL('./assets/Ball.gltf', import.meta.url);
+const treesUrl = [
+    {
+        url: new URL('./assets/Tree.gltf', import.meta.url),
+        position: {
+            x: -20,
+            y: -1,
+            z: 10
+        }
+    }, {
+        url: new URL('./assets/Tree_1.gltf', import.meta.url),
+        position: {
+            x: -20,
+            y: -1,
+            z: 10
+        }
     }
-};
-const buildingUrl = [houseUrl, towerUrl];
+];
 const texture = new THREE.TextureLoader().load(cloth);
 
 //Loading Assets
@@ -68,7 +99,37 @@ for(const building of buildingUrl){
     });
 }
 
+let ball = undefined;
+new GLTFLoader().load(ballUrl.href, (result) => {
+    const object = result.scene.children[0];
+    object.traverse((node) => {
+        if(node.isMesh){
+            node.castShadow = true;
+        }
+    });
+    object.position.set(0, 0, 2);
+    scene.add(object);
+    ball = object;
+});
 
+let trees = [];
+for(const tree of treesUrl){
+    new GLTFLoader().load(tree.url.href, (result) => {
+        const object = result.scene.children[0];
+        console.log(object);
+        object.traverse((node) => {
+            if(node.isMesh){
+                node.castShadow = true;
+            }
+        });
+        const position = tree.position;
+        object.position.set(position.x, position.y, position.z);
+        scene.add(object);
+        trees.push(object);
+    });
+}
+
+//Settings
 camera.position.set(0, 0, 10);
 
 renderer.shadowMap.enabled = true;
@@ -80,6 +141,7 @@ document.body.appendChild(renderer.domElement);
 
 scene.backgroundColor = new THREE.Color(255, 255, 255);
 
+//Lighting
 const light = new THREE.DirectionalLight(0xffffff, 1);
 light.position.set(300, 300, 0);
 light.target.position.set(-20, 0, 5);
@@ -100,6 +162,7 @@ scene.add( new THREE.CameraHelper( light.shadow.camera ) );
 const lightHelper = new THREE.DirectionalLightHelper(light, 10, 0xff00ff);
 scene.add(lightHelper);
 
+//Plane
 const plane = new THREE.PlaneGeometry(1000, 1000, 100, 100);
 const planeMaterial = new THREE.MeshPhongMaterial({color: 0x00ffff});
 const planeMesh = new THREE.Mesh(plane, planeMaterial);
@@ -108,6 +171,7 @@ planeMesh.position.set(0, -1, 0);
 planeMesh.receiveShadow = true;
 scene.add(planeMesh);
 
+//Control
 let keyboard = [];
 
 document.body.addEventListener('keydown', (evt) => {

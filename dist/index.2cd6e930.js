@@ -571,25 +571,58 @@ const renderer = new _three.WebGLRenderer({
 const controls = new (0, _orbitControls.OrbitControls)(camera, renderer.domElement);
 //Import Assets
 const testingCharacterURL = new URL(require("be097b1d8b748160"));
-const houseUrl = {
-    url: new URL(require("a75c11b314255a3e")),
-    position: {
-        x: 20,
-        y: -0.7,
-        z: 3
-    }
-};
-const towerUrl = {
-    url: new URL(require("ec82e908a47f0aec")),
-    position: {
-        x: -20,
-        y: -0.7,
-        z: 5
-    }
-};
 const buildingUrl = [
-    houseUrl,
-    towerUrl
+    {
+        url: new URL(require("a75c11b314255a3e")),
+        position: {
+            x: 20,
+            y: -1,
+            z: 3
+        }
+    },
+    {
+        url: new URL(require("4c1bb081f4f58d39")),
+        position: {
+            x: -50,
+            y: 2,
+            z: 30
+        }
+    },
+    {
+        url: new URL(require("164a31d1a1e8c22f")),
+        position: {
+            x: 50,
+            y: 2,
+            z: 15
+        }
+    },
+    {
+        url: new URL(require("ec82e908a47f0aec")),
+        position: {
+            x: -20,
+            y: -1,
+            z: 5
+        }
+    }
+];
+const ballUrl = new URL(require("1509d7d01b7f611d"));
+const treesUrl = [
+    {
+        url: new URL(require("93e2dbc2693f5bca")),
+        position: {
+            x: -20,
+            y: -1,
+            z: 10
+        }
+    },
+    {
+        url: new URL(require("978fb4ce9e17726e")),
+        position: {
+            x: -20,
+            y: -1,
+            z: 10
+        }
+    }
 ];
 const texture = new _three.TextureLoader().load(_clothPng);
 //Loading Assets
@@ -613,6 +646,29 @@ for (const building of buildingUrl)new (0, _gltfloader.GLTFLoader)().load(buildi
     scene.add(object);
     buildings.push(object);
 });
+let ball = undefined;
+new (0, _gltfloader.GLTFLoader)().load(ballUrl.href, (result)=>{
+    const object = result.scene.children[0];
+    object.traverse((node)=>{
+        if (node.isMesh) node.castShadow = true;
+    });
+    object.position.set(0, 0, 2);
+    scene.add(object);
+    ball = object;
+});
+let trees = [];
+for (const tree of treesUrl)new (0, _gltfloader.GLTFLoader)().load(tree.url.href, (result)=>{
+    const object = result.scene.children[0];
+    console.log(object);
+    object.traverse((node)=>{
+        if (node.isMesh) node.castShadow = true;
+    });
+    const position = tree.position;
+    object.position.set(position.x, position.y, position.z);
+    scene.add(object);
+    trees.push(object);
+});
+//Settings
 camera.position.set(0, 0, 10);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = _three.PCFSoftShadowMap; //THREE.BasicShadowMap | THREE.PCFShadowMap |  THREE.VSMShadowMap | THREE.PCFSoftShadowMap
@@ -620,6 +676,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(devicePixelRatio);
 document.body.appendChild(renderer.domElement);
 scene.backgroundColor = new _three.Color(255, 255, 255);
+//Lighting
 const light = new _three.DirectionalLight(0xffffff, 1);
 light.position.set(300, 300, 0);
 light.target.position.set(-20, 0, 5);
@@ -637,6 +694,7 @@ scene.add(light.target);
 scene.add(new _three.CameraHelper(light.shadow.camera));
 const lightHelper = new _three.DirectionalLightHelper(light, 10, 0xff00ff);
 scene.add(lightHelper);
+//Plane
 const plane = new _three.PlaneGeometry(1000, 1000, 100, 100);
 const planeMaterial = new _three.MeshPhongMaterial({
     color: 0x00ffff
@@ -646,6 +704,7 @@ planeMesh.rotation.x = -Math.PI / 2;
 planeMesh.position.set(0, -1, 0);
 planeMesh.receiveShadow = true;
 scene.add(planeMesh);
+//Control
 let keyboard = [];
 document.body.addEventListener("keydown", (evt)=>{
     keyboard[evt.key] = true;
@@ -676,7 +735,7 @@ function draw() {
 }
 draw();
 
-},{"three":"ktPTu","../node_modules/three/examples/jsm/controls/OrbitControls":"7mqRv","../node_modules/three/examples/jsm/loaders/GLTFLoader":"dVRsF","./assets/Cloth.png":"663Y5","be097b1d8b748160":"c2dXg","ec82e908a47f0aec":"9cd6R","a75c11b314255a3e":"3sPsz"}],"ktPTu":[function(require,module,exports) {
+},{"three":"ktPTu","../node_modules/three/examples/jsm/controls/OrbitControls":"7mqRv","../node_modules/three/examples/jsm/loaders/GLTFLoader":"dVRsF","./assets/Cloth.png":"663Y5","be097b1d8b748160":"c2dXg","a75c11b314255a3e":"3sPsz","4c1bb081f4f58d39":"gINkT","164a31d1a1e8c22f":"8TBdy","ec82e908a47f0aec":"9cd6R","1509d7d01b7f611d":"492F0","93e2dbc2693f5bca":"1bQ6N","978fb4ce9e17726e":"kZSDj"}],"ktPTu":[function(require,module,exports) {
 /**
  * @license
  * Copyright 2010-2023 Three.js Authors
@@ -34207,12 +34266,27 @@ exports.getOrigin = getOrigin;
 },{}],"c2dXg":[function(require,module,exports) {
 module.exports = require("aa740d512e1e6863").getBundleURL("eFXzA") + "characterTesting.f4dd0183.gltf" + "?" + Date.now();
 
-},{"aa740d512e1e6863":"lgJ39"}],"9cd6R":[function(require,module,exports) {
-module.exports = require("d775be1819138ac8").getBundleURL("eFXzA") + "Tower.0867ce29.gltf" + "?" + Date.now();
-
-},{"d775be1819138ac8":"lgJ39"}],"3sPsz":[function(require,module,exports) {
+},{"aa740d512e1e6863":"lgJ39"}],"3sPsz":[function(require,module,exports) {
 module.exports = require("683d2b8cc22b46f8").getBundleURL("eFXzA") + "House_1.b68df84a.gltf" + "?" + Date.now();
 
-},{"683d2b8cc22b46f8":"lgJ39"}]},["ezkqR","dfcLp"], "dfcLp", "parcelRequire94c2")
+},{"683d2b8cc22b46f8":"lgJ39"}],"gINkT":[function(require,module,exports) {
+module.exports = require("1a5477bea46e6dd8").getBundleURL("eFXzA") + "House_2.e42d2c75.gltf" + "?" + Date.now();
+
+},{"1a5477bea46e6dd8":"lgJ39"}],"8TBdy":[function(require,module,exports) {
+module.exports = require("be90a0728dd5d16a").getBundleURL("eFXzA") + "House_3.fe121d67.gltf" + "?" + Date.now();
+
+},{"be90a0728dd5d16a":"lgJ39"}],"9cd6R":[function(require,module,exports) {
+module.exports = require("d775be1819138ac8").getBundleURL("eFXzA") + "Tower.0867ce29.gltf" + "?" + Date.now();
+
+},{"d775be1819138ac8":"lgJ39"}],"492F0":[function(require,module,exports) {
+module.exports = require("8bf0f8df20eb1c74").getBundleURL("eFXzA") + "Ball.de3d54a9.gltf" + "?" + Date.now();
+
+},{"8bf0f8df20eb1c74":"lgJ39"}],"1bQ6N":[function(require,module,exports) {
+module.exports = require("62941362c7cd2e6").getBundleURL("eFXzA") + "Tree.d8bcbbb0.gltf" + "?" + Date.now();
+
+},{"62941362c7cd2e6":"lgJ39"}],"kZSDj":[function(require,module,exports) {
+module.exports = require("761aef7101d3dd6c").getBundleURL("eFXzA") + "Tree_1.74e5fb3e.gltf" + "?" + Date.now();
+
+},{"761aef7101d3dd6c":"lgJ39"}]},["ezkqR","dfcLp"], "dfcLp", "parcelRequire94c2")
 
 //# sourceMappingURL=index.2cd6e930.js.map
