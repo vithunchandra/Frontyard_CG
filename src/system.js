@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "../node_modules/three/examples/jsm/controls/OrbitControls";
+import { TrackballControls } from '../node_modules/three/examples/jsm/controls/TrackballControls';
 import { GLTFLoader } from "../node_modules/three/examples/jsm/loaders/GLTFLoader";
 import * as cloth from "./assets/Cloth.png";
 import * as grassBaseTextureRaw from './assets/Texture/lambert1_baseColor.png';
@@ -16,9 +17,6 @@ const camera = new THREE.PerspectiveCamera(
 const cameraOffset = new THREE.Vector3(0, 2, -5)
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
-
-//Camera Controls
-const controls = new OrbitControls(camera, renderer.domElement);
 
 //Import Assets
 const testingCharacterURL = new URL(
@@ -232,6 +230,10 @@ planeMesh.receiveShadow = true;
 scene.add(planeMesh);
 
 //Control
+
+//Camera Controls
+const controls = new OrbitControls( camera, renderer.domElement );
+
 let keyboard = [];
 
 document.body.addEventListener("keydown", (evt) => {
@@ -273,7 +275,7 @@ function proccessKeyboard() {
     if(testingCharacter.rotation.z < 1.5 && testingCharacter.rotation.z > -1.5){
         testingCharacter.rotation.z += 0.1;
         console.log(3);
-    }else if (testingCharacter.rotation.z < -1.6 && testingCharacter.rotation.z >= -3) {
+    }else if (testingCharacter.rotation.z < -1.5 && testingCharacter.rotation.z >= -3) {
         if(testingCharacter.rotation.z - 0.1 <= -3){
             testingCharacter.rotation.z = 3;
             console.log(4);
@@ -337,8 +339,9 @@ function proccessKeyboard() {
 
   const objectPosition = new THREE.Vector3();
   testingCharacter.getWorldPosition(objectPosition);
-  camera.position.copy(objectPosition).add(cameraOffset);
   camera.lookAt(testingCharacter.position);
+  controls.target.copy(objectPosition);
+  controls.update();
 //   controls.target.copy(testingCharacter.position);
 //   controls.update();
 }
@@ -410,6 +413,7 @@ let clock = new THREE.Clock();
 function draw() {
   requestAnimationFrame(draw);
   updateCharacterPosition();
+  controls.update();
   renderer.render(scene, camera);
 }
 
