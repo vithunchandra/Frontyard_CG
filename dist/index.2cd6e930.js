@@ -142,7 +142,7 @@
       this[globalName] = mainExports;
     }
   }
-})({"ezkqR":[function(require,module,exports) {
+})({"2FxBI":[function(require,module,exports) {
 var global = arguments[3];
 var HMR_HOST = null;
 var HMR_PORT = null;
@@ -570,10 +570,10 @@ const renderer = new _three.WebGLRenderer({
 //Camera Controls
 const controls = new (0, _orbitControls.OrbitControls)(camera, renderer.domElement);
 //Import Assets
-const testingCharacterURL = new URL(require("be097b1d8b748160"));
+const testingCharacterURL = new URL(require("268f6753eee3f80f"));
 const buildingUrl = [
     {
-        url: new URL(require("a75c11b314255a3e")),
+        url: new URL(require("d5644d973c148d93")),
         position: {
             x: 20,
             y: -1,
@@ -581,7 +581,7 @@ const buildingUrl = [
         }
     },
     {
-        url: new URL(require("4c1bb081f4f58d39")),
+        url: new URL(require("cc6e6e739cb66abc")),
         position: {
             x: -50,
             y: 2,
@@ -589,7 +589,7 @@ const buildingUrl = [
         }
     },
     {
-        url: new URL(require("164a31d1a1e8c22f")),
+        url: new URL(require("a1b7280dfce2a1a")),
         position: {
             x: 50,
             y: 2,
@@ -597,7 +597,7 @@ const buildingUrl = [
         }
     },
     {
-        url: new URL(require("ec82e908a47f0aec")),
+        url: new URL(require("5d7df5402ae64597")),
         position: {
             x: -20,
             y: -1,
@@ -605,10 +605,10 @@ const buildingUrl = [
         }
     }
 ];
-const ballUrl = new URL(require("1509d7d01b7f611d"));
+const ballUrl = new URL(require("42fa44a534a5da02"));
 const treesUrl = [
     {
-        url: new URL(require("93e2dbc2693f5bca")),
+        url: new URL(require("e95c0313a751195b")),
         position: {
             x: -20,
             y: -1,
@@ -616,7 +616,7 @@ const treesUrl = [
         }
     },
     {
-        url: new URL(require("978fb4ce9e17726e")),
+        url: new URL(require("e68cd17db40b0de5")),
         position: {
             x: -20,
             y: -1,
@@ -624,8 +624,10 @@ const treesUrl = [
         }
     }
 ];
+const grassUrl = new URL(require("2be5938884f15c10"));
 const texture = new _three.TextureLoader().load(_clothPng);
 //Loading Assets
+// Character
 let testingCharacter = undefined;
 new (0, _gltfloader.GLTFLoader)().load(testingCharacterURL.href, (result)=>{
     testingCharacter = result.scene.children[0];
@@ -635,6 +637,7 @@ new (0, _gltfloader.GLTFLoader)().load(testingCharacterURL.href, (result)=>{
     testingCharacter.position.set(0, 0.7, 0);
     scene.add(testingCharacter);
 });
+// Buildings
 let buildings = [];
 for (const building of buildingUrl)new (0, _gltfloader.GLTFLoader)().load(building.url.href, (result)=>{
     const object = result.scene.children[0];
@@ -646,16 +649,17 @@ for (const building of buildingUrl)new (0, _gltfloader.GLTFLoader)().load(buildi
     scene.add(object);
     buildings.push(object);
 });
+// Ball
 let ball = undefined;
 new (0, _gltfloader.GLTFLoader)().load(ballUrl.href, (result)=>{
-    const object = result.scene.children[0];
-    object.traverse((node)=>{
+    ball = result.scene.children[0];
+    ball.traverse((node)=>{
         if (node.isMesh) node.castShadow = true;
     });
-    object.position.set(0, 0, 2);
-    scene.add(object);
-    ball = object;
+    ball.position.set(0, -0.7, 5);
+    scene.add(ball);
 });
+// Tree
 let trees = [];
 for (const tree of treesUrl)new (0, _gltfloader.GLTFLoader)().load(tree.url.href, (result)=>{
     const object = result.scene.children[0];
@@ -668,6 +672,28 @@ for (const tree of treesUrl)new (0, _gltfloader.GLTFLoader)().load(tree.url.href
     scene.add(object);
     trees.push(object);
 });
+// Grass
+// let x = 50;
+// let z = 9;
+// const grassSpacing = 3; // Adjust this value to control the spacing between grass squares
+// for (let i = 0; i < 10; i++) {
+//   x = x - 3;
+//   z = 9; // Reset the z position for each iteration of the outer loop
+//   for (let j = 0; j < 15; j++) {
+//     new GLTFLoader().load(grassUrl.href, (result) => {
+//       const grass = result.scene.children[0].clone(); // Clone the grass object to create individual instances
+//       grass.traverse((node) => {
+//         if (node.isMesh) {
+//           node.castShadow = true;
+//         }
+//       });
+//       const grassX = x - j * grassSpacing; // Calculate the x position based on the loop index
+//       const grassZ = z - i * grassSpacing; // Calculate the z position based on the loop index
+//       grass.position.set(grassX, -1, grassZ);
+//       scene.add(grass);
+//     });
+//   }
+// }
 //Settings
 camera.position.set(0, 0, 10);
 renderer.shadowMap.enabled = true;
@@ -712,11 +738,31 @@ document.body.addEventListener("keydown", (evt)=>{
 document.body.addEventListener("keyup", (evt)=>{
     keyboard[evt.key] = false;
 });
+let characterPreviousPosition = new _three.Vector3();
+let ballPreviousPosition = new _three.Vector3();
+function updateCharacterPosition() {
+    characterPreviousPosition.copy(testingCharacter.position);
+    proccessKeyboard();
+    checkCollision();
+}
+let lastUsedKey = null;
 function proccessKeyboard() {
-    if (keyboard["a"]) testingCharacter.position.x -= 0.05;
-    if (keyboard["d"]) testingCharacter.position.x += 0.05;
-    if (keyboard["w"]) testingCharacter.position.z += 0.05;
-    if (keyboard["s"]) testingCharacter.position.z -= 0.05;
+    if (keyboard["d"]) {
+        testingCharacter.position.x -= 0.25;
+        lastUsedKey = "d";
+    }
+    if (keyboard["a"]) {
+        testingCharacter.position.x += 0.25;
+        lastUsedKey = "a";
+    }
+    if (keyboard["w"]) {
+        testingCharacter.position.z += 0.25;
+        lastUsedKey = "w";
+    }
+    if (keyboard["s"]) {
+        testingCharacter.position.z -= 0.25;
+        lastUsedKey = "s";
+    }
 }
 window.addEventListener("resize", ()=>{
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -727,15 +773,54 @@ window.addEventListener("resize", ()=>{
 function randomNumber() {
     return Math.floor(Math.random() * 50) + 1;
 }
+function checkCollision() {
+    const characterBox = new _three.Box3().setFromObject(testingCharacter);
+    const ballBox = new _three.Box3().setFromObject(ball);
+    if (characterBox.intersectsBox(ballBox)) {
+        // There is a collision between the character and the ball
+        const ballSpeed = 1;
+        const ballMovement = new _three.Vector3();
+        switch(lastUsedKey){
+            case "w":
+                ballMovement.z = ballSpeed;
+                break;
+            case "a":
+                ballMovement.x = ballSpeed;
+                break;
+            case "s":
+                ballMovement.z = -ballSpeed;
+                break;
+            case "d":
+                ballMovement.x = -ballSpeed;
+                break;
+        }
+        ballPreviousPosition.copy(ball.position);
+        ball.position.add(ballMovement);
+    }
+    for (const building of buildings){
+        const buildingBox = new _three.Box3().setFromObject(building);
+        if (characterBox.intersectsBox(buildingBox)) // There is a collision, revert the character's position to the previous position
+        testingCharacter.position.copy(characterPreviousPosition);
+        if (ballBox.intersectsBox(buildingBox)) // There is a collision between the ball and a building
+        ball.position.copy(ballPreviousPosition);
+    }
+    for (const tree of trees){
+        const treeBox = new _three.Box3().setFromObject(tree);
+        if (characterBox.intersectsBox(treeBox)) // There is a collision, revert the character's position to the previous position
+        testingCharacter.position.copy(characterPreviousPosition);
+        if (ballBox.intersectsBox(treeBox)) // There is a collision between the ball and a building
+        ball.position.copy(ballPreviousPosition);
+    }
+}
 let clock = new _three.Clock();
 function draw() {
     requestAnimationFrame(draw);
-    proccessKeyboard();
+    updateCharacterPosition();
     renderer.render(scene, camera);
 }
 draw();
 
-},{"three":"ktPTu","../node_modules/three/examples/jsm/controls/OrbitControls":"7mqRv","../node_modules/three/examples/jsm/loaders/GLTFLoader":"dVRsF","./assets/Cloth.png":"663Y5","be097b1d8b748160":"c2dXg","a75c11b314255a3e":"3sPsz","4c1bb081f4f58d39":"gINkT","164a31d1a1e8c22f":"8TBdy","ec82e908a47f0aec":"9cd6R","1509d7d01b7f611d":"492F0","93e2dbc2693f5bca":"1bQ6N","978fb4ce9e17726e":"kZSDj"}],"ktPTu":[function(require,module,exports) {
+},{"three":"ktPTu","../node_modules/three/examples/jsm/controls/OrbitControls":"7mqRv","../node_modules/three/examples/jsm/loaders/GLTFLoader":"dVRsF","./assets/Cloth.png":"663Y5","268f6753eee3f80f":"c2dXg","d5644d973c148d93":"3sPsz","cc6e6e739cb66abc":"gINkT","a1b7280dfce2a1a":"8TBdy","5d7df5402ae64597":"9cd6R","42fa44a534a5da02":"492F0","e95c0313a751195b":"1bQ6N","e68cd17db40b0de5":"kZSDj","2be5938884f15c10":"1ais3"}],"ktPTu":[function(require,module,exports) {
 /**
  * @license
  * Copyright 2010-2023 Three.js Authors
@@ -34227,9 +34312,9 @@ function mergeBufferAttributes(attributes) {
 }
 
 },{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"663Y5":[function(require,module,exports) {
-module.exports = require("1879a1a74e909b01").getBundleURL("eFXzA") + "Cloth.c848aea3.png" + "?" + Date.now();
+module.exports = require("4f7454c5d4159f0b").getBundleURL("eFXzA") + "Cloth.c848aea3.png" + "?" + Date.now();
 
-},{"1879a1a74e909b01":"lgJ39"}],"lgJ39":[function(require,module,exports) {
+},{"4f7454c5d4159f0b":"lgJ39"}],"lgJ39":[function(require,module,exports) {
 "use strict";
 var bundleURL = {};
 function getBundleURLCached(id) {
@@ -34264,29 +34349,32 @@ exports.getBaseURL = getBaseURL;
 exports.getOrigin = getOrigin;
 
 },{}],"c2dXg":[function(require,module,exports) {
-module.exports = require("aa740d512e1e6863").getBundleURL("eFXzA") + "characterTesting.f4dd0183.gltf" + "?" + Date.now();
+module.exports = require("f79a4f902dc15c1e").getBundleURL("eFXzA") + "characterTesting.f4dd0183.gltf" + "?" + Date.now();
 
-},{"aa740d512e1e6863":"lgJ39"}],"3sPsz":[function(require,module,exports) {
-module.exports = require("683d2b8cc22b46f8").getBundleURL("eFXzA") + "House_1.b68df84a.gltf" + "?" + Date.now();
+},{"f79a4f902dc15c1e":"lgJ39"}],"3sPsz":[function(require,module,exports) {
+module.exports = require("d6f4e4bd1decbe0e").getBundleURL("eFXzA") + "House_1.b68df84a.gltf" + "?" + Date.now();
 
-},{"683d2b8cc22b46f8":"lgJ39"}],"gINkT":[function(require,module,exports) {
-module.exports = require("1a5477bea46e6dd8").getBundleURL("eFXzA") + "House_2.e42d2c75.gltf" + "?" + Date.now();
+},{"d6f4e4bd1decbe0e":"lgJ39"}],"gINkT":[function(require,module,exports) {
+module.exports = require("4f42a33861cc104b").getBundleURL("eFXzA") + "House_2.e42d2c75.gltf" + "?" + Date.now();
 
-},{"1a5477bea46e6dd8":"lgJ39"}],"8TBdy":[function(require,module,exports) {
-module.exports = require("be90a0728dd5d16a").getBundleURL("eFXzA") + "House_3.fe121d67.gltf" + "?" + Date.now();
+},{"4f42a33861cc104b":"lgJ39"}],"8TBdy":[function(require,module,exports) {
+module.exports = require("f7b5a0c3332d7c98").getBundleURL("eFXzA") + "House_3.fe121d67.gltf" + "?" + Date.now();
 
-},{"be90a0728dd5d16a":"lgJ39"}],"9cd6R":[function(require,module,exports) {
-module.exports = require("d775be1819138ac8").getBundleURL("eFXzA") + "Tower.0867ce29.gltf" + "?" + Date.now();
+},{"f7b5a0c3332d7c98":"lgJ39"}],"9cd6R":[function(require,module,exports) {
+module.exports = require("21dec8b4d7d06ac2").getBundleURL("eFXzA") + "Tower.0867ce29.gltf" + "?" + Date.now();
 
-},{"d775be1819138ac8":"lgJ39"}],"492F0":[function(require,module,exports) {
-module.exports = require("8bf0f8df20eb1c74").getBundleURL("eFXzA") + "Ball.de3d54a9.gltf" + "?" + Date.now();
+},{"21dec8b4d7d06ac2":"lgJ39"}],"492F0":[function(require,module,exports) {
+module.exports = require("4695dcfedaec2255").getBundleURL("eFXzA") + "Ball.de3d54a9.gltf" + "?" + Date.now();
 
-},{"8bf0f8df20eb1c74":"lgJ39"}],"1bQ6N":[function(require,module,exports) {
-module.exports = require("62941362c7cd2e6").getBundleURL("eFXzA") + "Tree.d8bcbbb0.gltf" + "?" + Date.now();
+},{"4695dcfedaec2255":"lgJ39"}],"1bQ6N":[function(require,module,exports) {
+module.exports = require("773eefbea68c8c8a").getBundleURL("eFXzA") + "Tree.d8bcbbb0.gltf" + "?" + Date.now();
 
-},{"62941362c7cd2e6":"lgJ39"}],"kZSDj":[function(require,module,exports) {
-module.exports = require("761aef7101d3dd6c").getBundleURL("eFXzA") + "Tree_1.74e5fb3e.gltf" + "?" + Date.now();
+},{"773eefbea68c8c8a":"lgJ39"}],"kZSDj":[function(require,module,exports) {
+module.exports = require("a51b79c4bd6d1237").getBundleURL("eFXzA") + "Tree_1.74e5fb3e.gltf" + "?" + Date.now();
 
-},{"761aef7101d3dd6c":"lgJ39"}]},["ezkqR","dfcLp"], "dfcLp", "parcelRequire94c2")
+},{"a51b79c4bd6d1237":"lgJ39"}],"1ais3":[function(require,module,exports) {
+module.exports = require("faa5b9f6f2e220b").getBundleURL("eFXzA") + "Grass.6442f7da.gltf" + "?" + Date.now();
+
+},{"faa5b9f6f2e220b":"lgJ39"}]},["2FxBI","dfcLp"], "dfcLp", "parcelRequire94c2")
 
 //# sourceMappingURL=index.2cd6e930.js.map
