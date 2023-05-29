@@ -692,7 +692,8 @@ new (0, _gltfloader.GLTFLoader)().load(carUrl.href, (result)=>{
     car.traverse((node)=>{
         if (node.isMesh) node.castShadow = true;
     });
-    car.position.set(5, -1, 15);
+    car.position.set(15, -0.7, 15);
+    car.rotation.z = 1.5;
     scene.add(car);
 });
 // Tree
@@ -747,11 +748,11 @@ function onMouseDown(event) {
     const intersects = raycaster.intersectObjects([
         testingCharacter,
         ball,
-        dog
+        dog,
+        car
     ]);
     if (intersects.length > 0) {
         const clickedObject = intersects[0].object;
-        console.log(clickedObject.name);
         if (clickedObject.name == "Character") currentObject = testingCharacter;
         else if (clickedObject.name.includes("FootballBall")) currentObject = ball;
         else if (clickedObject.name.includes("Dog")) currentObject = dog;
@@ -826,6 +827,10 @@ function updateCharacterPosition() {
 let lastUsedKey = null;
 let currentObject = null;
 function proccessKeyboard() {
+    console.log(currentObject);
+    console.log(currentObject.position.x);
+    console.log(currentObject.position.y);
+    console.log(currentObject.position.z);
     ballPreviousPosition.copy(ball.position);
     if (keyboard["d"]) {
         currentObject.position.x -= 0.25;
@@ -894,7 +899,11 @@ function proccessKeyboard() {
         lastUsedKey = "s";
         console.log(currentObject.rotation.z);
     }
-    if (keyboard["f"] && rideCar) console.log("naik");
+    if (keyboard["f"] && rideCar) {
+        testingCharacter.position.set(100, 0.7, 0);
+        currentObject = car;
+        rideCar = false;
+    }
     const objectPosition = new _three.Vector3();
     currentObject.getWorldPosition(objectPosition);
     camera.lookAt(currentObject.position);
@@ -918,7 +927,7 @@ function checkCollision() {
     const characterBox = new _three.Box3().setFromObject(testingCharacter).expandByScalar(1.5);
     const ballBox = new _three.Box3().setFromObject(ball);
     const carBox = new _three.Box3().setFromObject(car);
-    if (currentObjectBox.intersectsBox(carBox)) currentObject.position.copy(characterPreviousPosition);
+    if (currentObjectBox.intersectsBox(carBox) && rideCar) currentObject.position.copy(characterPreviousPosition);
     if (characterBox.intersectsBox(carBox)) rideCar = true;
     else rideCar = false;
     if (currentObjectBox.intersectsBox(ballBox)) {

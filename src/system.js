@@ -167,7 +167,8 @@ new GLTFLoader().load(carUrl.href, (result) => {
       node.castShadow = true;
     }
   });
-  car.position.set(5, -1, 15);
+  car.position.set(15, -0.7, 15);
+  car.rotation.z = 1.5
   scene.add(car);
 });
 
@@ -235,10 +236,14 @@ function onMouseDown(event) {
   raycaster.setFromCamera(mouse, camera);
 
   // Check for intersections with character, ball, and dog
-  const intersects = raycaster.intersectObjects([testingCharacter, ball, dog]);
+  const intersects = raycaster.intersectObjects([
+    testingCharacter,
+    ball,
+    dog,
+    car,
+  ]);
   if (intersects.length > 0) {
     const clickedObject = intersects[0].object;
-    console.log(clickedObject.name);
     if (clickedObject.name == "Character") {
       currentObject = testingCharacter;
     } else if (clickedObject.name.includes("FootballBall")) {
@@ -335,12 +340,14 @@ let lastUsedKey = null;
 let currentObject = null;
 
 function proccessKeyboard() {
+  console.log(currentObject);
+  console.log(currentObject.position.x);
+  console.log(currentObject.position.y);
+  console.log(currentObject.position.z);
   ballPreviousPosition.copy(ball.position);
-
   if (keyboard["d"]) {
     currentObject.position.x -= 0.25;
     camera.position.x -= 0.25;
-
     if (currentObject.rotation.z > -1.4) {
       currentObject.rotation.z -= 0.1;
       console.log(1);
@@ -428,8 +435,10 @@ function proccessKeyboard() {
     lastUsedKey = "s";
     console.log(currentObject.rotation.z);
   }
-  if(keyboard["f"] && rideCar){
-    console.log('naik');
+  if (keyboard["f"] && rideCar) {
+    testingCharacter.position.set(100, 0.7, 0);
+    currentObject = car;
+    rideCar = false;
   }
 
   const objectPosition = new THREE.Vector3();
@@ -462,7 +471,7 @@ function checkCollision() {
   const ballBox = new THREE.Box3().setFromObject(ball);
   const carBox = new THREE.Box3().setFromObject(car);
 
-  if (currentObjectBox.intersectsBox(carBox)) {
+  if (currentObjectBox.intersectsBox(carBox) && rideCar) {
     currentObject.position.copy(characterPreviousPosition);
   }
 
