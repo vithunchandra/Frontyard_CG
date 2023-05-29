@@ -1,10 +1,10 @@
 import * as THREE from "three";
 import { OrbitControls } from "../node_modules/three/examples/jsm/controls/OrbitControls";
-import { TrackballControls } from '../node_modules/three/examples/jsm/controls/TrackballControls';
+import { TrackballControls } from "../node_modules/three/examples/jsm/controls/TrackballControls";
 import { GLTFLoader } from "../node_modules/three/examples/jsm/loaders/GLTFLoader";
 import * as cloth from "./assets/Cloth.png";
-import * as grassBaseTextureRaw from './assets/Texture/lambert1_baseColor.png';
-import * as grassNormalTextureRaw from './assets/Texture/lambert1_normal.png';
+import * as grassBaseTextureRaw from "./assets/Texture/lambert1_baseColor.png";
+import * as grassNormalTextureRaw from "./assets/Texture/lambert1_normal.png";
 
 // System Inizialization
 const scene = new THREE.Scene();
@@ -14,7 +14,7 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   1000
 );
-const cameraOffset = new THREE.Vector3(0, 2, -5)
+const cameraOffset = new THREE.Vector3(0, 2, -5);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 
@@ -77,6 +77,7 @@ const treesUrl = [
   },
 ];
 const grassUrl = new URL("./assets/Grass.gltf", import.meta.url);
+const dogUrl = new URL("./assets/Dog.gltf", import.meta.url);
 
 // const texture = new THREE.TextureLoader().load(cloth);
 
@@ -87,8 +88,10 @@ grassBaseTexture.wrapS = THREE.RepeatWrapping;
 grassBaseTexture.wrapT = THREE.RepeatWrapping;
 grassBaseTexture.repeat.set(50, 50);
 
-const grassNormalTexture = new THREE.TextureLoader().load(grassNormalTextureRaw);
-grassNormalTexture.magFilter = THREE.LinearFilter
+const grassNormalTexture = new THREE.TextureLoader().load(
+  grassNormalTextureRaw
+);
+grassNormalTexture.magFilter = THREE.LinearFilter;
 grassNormalTexture.wrapS = THREE.RepeatWrapping;
 grassNormalTexture.wrapT = THREE.RepeatWrapping;
 grassNormalTexture.repeat.set(50, 50);
@@ -103,6 +106,10 @@ new GLTFLoader().load(testingCharacterURL.href, (result) => {
     }
   });
   testingCharacter.position.set(0, 0.7, 0);
+  testingCharacter.onClick = () => {
+    node.userData.isSelectable = true; // Add a custom property to make it selectable
+    console.log("Character clicked!");
+  };
   controls.target.copy(testingCharacter.position);
   controls.update();
   scene.add(testingCharacter);
@@ -135,10 +142,30 @@ new GLTFLoader().load(ballUrl.href, (result) => {
   ball.traverse((node) => {
     if (node.isMesh) {
       node.castShadow = true;
+      node.userData.isSelectable = true; // Add a custom property to make it selectable
     }
   });
   ball.position.set(0, -0.7, 5);
+  ball.onClick = () => {
+    console.log("Ball clicked!");
+  };
   scene.add(ball);
+});
+
+let dog = undefined;
+new GLTFLoader().load(dogUrl.href, (result) => {
+  dog = result.scene.children[0];
+  dog.traverse((node) => {
+    if (node.isMesh) {
+      node.castShadow = true;
+      node.userData.isSelectable = true; // Add a custom property to make it selectable
+    }
+  });
+  dog.position.set(5, -0.7, 5);
+  dog.onClick = () => {
+    console.log("Dog clicked!");
+  };
+  scene.add(dog);
 });
 
 // Tree
@@ -187,6 +214,29 @@ for (const tree of treesUrl) {
 //   }
 // }
 
+// Event listener for mouse clicks
+
+renderer.domElement.addEventListener("click", onClick);
+
+function onClick(event) {
+  const mouse = new THREE.Vector2();
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+  const raycaster = new THREE.Raycaster();
+  raycaster.setFromCamera(mouse, camera);
+
+  const intersects = raycaster.intersectObjects(scene.children, true);
+
+  for (const intersect of intersects) {
+    const object = intersect.object;
+    if (object.userData.isSelectable && object.onClick) {
+      object.onClick();
+      break; // Only handle the first selectable object that was clicked
+    }
+  }
+}
+
 //Settings
 camera.position.set(0, 0, 10);
 
@@ -222,7 +272,11 @@ scene.add(lightHelper);
 
 //Plane
 const plane = new THREE.PlaneGeometry(1000, 1000, 100, 100);
-const planeMaterial = new THREE.MeshPhongMaterial({ color: 0x00ffff, map: grassBaseTexture, normalMap: grassNormalTexture});
+const planeMaterial = new THREE.MeshPhongMaterial({
+  color: 0x00ffff,
+  map: grassBaseTexture,
+  normalMap: grassNormalTexture,
+});
 const planeMesh = new THREE.Mesh(plane, planeMaterial);
 planeMesh.rotation.x = -Math.PI / 2;
 planeMesh.position.set(0, -1, 0);
@@ -232,7 +286,7 @@ scene.add(planeMesh);
 //Control
 
 //Camera Controls
-const controls = new OrbitControls( camera, renderer.domElement );
+const controls = new OrbitControls(camera, renderer.domElement);
 
 let keyboard = [];
 
@@ -257,81 +311,97 @@ let lastUsedKey = null;
 function proccessKeyboard() {
   if (keyboard["d"]) {
     testingCharacter.position.x -= 0.25;
+    camera.position.x -= 0.25;
 
-    if(testingCharacter.rotation.z > -1.4){
-        testingCharacter.rotation.z -= 0.1;
-        console.log(1);
+    if (testingCharacter.rotation.z > -1.4) {
+      testingCharacter.rotation.z -= 0.1;
+      console.log(1);
     }
-    if(testingCharacter.rotation.z < -1.5){
-        testingCharacter.rotation.z += 0.1;
-        console.log(2);
+    if (testingCharacter.rotation.z < -1.5) {
+      testingCharacter.rotation.z += 0.1;
+      console.log(2);
     }
     lastUsedKey = "d";
     console.log(testingCharacter.rotation.z);
-
   }
   if (keyboard["a"]) {
     testingCharacter.position.x += 0.25;
-    if(testingCharacter.rotation.z < 1.5 && testingCharacter.rotation.z > -1.5){
-        testingCharacter.rotation.z += 0.1;
-        console.log(3);
-    }else if (testingCharacter.rotation.z < -1.5 && testingCharacter.rotation.z >= -3) {
-        if(testingCharacter.rotation.z - 0.1 <= -3){
-            testingCharacter.rotation.z = 3;
-            console.log(4);
-        }else{
-            testingCharacter.rotation.z -= 0.1;
-            console.log(5);
-        }
-    }else if(testingCharacter.rotation.z > 1.6 && testingCharacter.rotation.z <= 3){
-        testingCharacter.rotation.z -= 0.1
+    camera.position.x += 0.25;
+    if (
+      testingCharacter.rotation.z < 1.5 &&
+      testingCharacter.rotation.z > -1.5
+    ) {
+      testingCharacter.rotation.z += 0.1;
+      console.log(3);
+    } else if (
+      testingCharacter.rotation.z < -1.5 &&
+      testingCharacter.rotation.z >= -3
+    ) {
+      if (testingCharacter.rotation.z - 0.1 <= -3) {
+        testingCharacter.rotation.z = 3;
+        console.log(4);
+      } else {
+        testingCharacter.rotation.z -= 0.1;
+        console.log(5);
+      }
+    } else if (
+      testingCharacter.rotation.z > 1.6 &&
+      testingCharacter.rotation.z <= 3
+    ) {
+      testingCharacter.rotation.z -= 0.1;
     }
     lastUsedKey = "a";
     console.log(testingCharacter.rotation.z);
-
   }
   if (keyboard["w"]) {
     testingCharacter.position.z += 0.25;
-    if(Math.floor(testingCharacter.rotation) !== 0){
-        if(testingCharacter.rotation.z >= -3 && testingCharacter.rotation.z <= 0){
-            if(testingCharacter.rotation.z + 0.1 >= 0){
-                testingCharacter.rotation.z = 0;
-            }else {
-                testingCharacter.rotation.z += 0.1;
-            }
-        console.log(6);
-        }else if(testingCharacter.rotation.z <= 3 && testingCharacter.rotation.z >= 0){
-            if(testingCharacter.rotation.z - 0.1 <= 0){
-                testingCharacter.rotation.z = 0;
-            }else {
-                testingCharacter.rotation.z -= 0.1;
-            }
-        console.log(7);      
+    camera.position.z += 0.25;
+    if (Math.floor(testingCharacter.rotation) !== 0) {
+      if (
+        testingCharacter.rotation.z >= -3 &&
+        testingCharacter.rotation.z <= 0
+      ) {
+        if (testingCharacter.rotation.z + 0.1 >= 0) {
+          testingCharacter.rotation.z = 0;
+        } else {
+          testingCharacter.rotation.z += 0.1;
         }
+        console.log(6);
+      } else if (
+        testingCharacter.rotation.z <= 3 &&
+        testingCharacter.rotation.z >= 0
+      ) {
+        if (testingCharacter.rotation.z - 0.1 <= 0) {
+          testingCharacter.rotation.z = 0;
+        } else {
+          testingCharacter.rotation.z -= 0.1;
+        }
+        console.log(7);
+      }
     }
     lastUsedKey = "w";
     console.log(testingCharacter.rotation.z);
-
   }
   if (keyboard["s"]) {
     testingCharacter.position.z -= 0.25;
-    if(testingCharacter.rotation.z > -3 && testingCharacter.rotation.z < 3){
-        console.log("test")
-        if(testingCharacter.rotation.z <= 0){
-            if(testingCharacter.rotation.z - 0.1 <= -3){
-                testingCharacter.rotation.z = 3;
-            }else{
-                testingCharacter.rotation.z -= 0.1
-            }
-        console.log(8);
-        }else if(testingCharacter.rotation.z >= 0){
-            if(testingCharacter.rotation.z + 0.1 >= 3){
-                testingCharacter.rotation.z = -3;
-            }else {
-                testingCharacter.rotation.z += 0.1;
-            }
-        console.log(9);
+    camera.position.z -= 0.25;
+    if (testingCharacter.rotation.z > -3 && testingCharacter.rotation.z < 3) {
+      console.log("test");
+      if (testingCharacter.rotation.z <= 0) {
+        if (testingCharacter.rotation.z - 0.1 <= -3) {
+          testingCharacter.rotation.z = 3;
+        } else {
+          testingCharacter.rotation.z -= 0.1;
         }
+        console.log(8);
+      } else if (testingCharacter.rotation.z >= 0) {
+        if (testingCharacter.rotation.z + 0.1 >= 3) {
+          testingCharacter.rotation.z = -3;
+        } else {
+          testingCharacter.rotation.z += 0.1;
+        }
+        console.log(9);
+      }
     }
     lastUsedKey = "s";
     console.log(testingCharacter.rotation.z);
@@ -342,8 +412,8 @@ function proccessKeyboard() {
   camera.lookAt(testingCharacter.position);
   controls.target.copy(objectPosition);
   controls.update();
-//   controls.target.copy(testingCharacter.position);
-//   controls.update();
+  //   controls.target.copy(testingCharacter.position);
+  //   controls.update();
 }
 
 window.addEventListener("resize", () => {
