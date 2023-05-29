@@ -529,10 +529,19 @@ function proccessKeyboard() {
     lastUsedKey = "s";
     console.log(currentObject.rotation.z);
   }
-  if (keyboard["f"] && rideCar) {
-    testingCharacter.position.set(100, 0.7, 0);
+  if (keyboard["f"] && canRide) {
+    testingCharacter.position.set(100, 0.7, 0);    
+    testingCharacter.visible = false
     currentObject = car;
-    rideCar = false;
+    canRide = false;
+    inCar = true
+  }
+
+  if(keyboard["r"] && inCar){
+    testingCharacter.position.set(currentObject.position.x + 5, 0.7, currentObject.position.z)
+    testingCharacter.visible = true
+    currentObject = testingCharacter
+    inCar = false
   }
 
   const objectPosition = new THREE.Vector3();
@@ -555,7 +564,8 @@ function randomNumber() {
   return Math.floor(Math.random() * 50) + 1;
 }
 
-let rideCar = false;
+let canRide = false;
+let inCar = false
 
 function checkCollision() {
   const currentObjectBox = new THREE.Box3().setFromObject(currentObject);
@@ -565,14 +575,14 @@ function checkCollision() {
   const ballBox = new THREE.Box3().setFromObject(ball);
   const carBox = new THREE.Box3().setFromObject(car);
 
-  if (currentObjectBox.intersectsBox(carBox) && rideCar) {
+  if (currentObjectBox.intersectsBox(carBox) && canRide) {
     currentObject.position.copy(characterPreviousPosition);
   }
 
   if (characterBox.intersectsBox(carBox)) {
-    rideCar = true;
+    canRide = true;
   } else {
-    rideCar = false;
+    canRide = false;
   }
 
   if (currentObjectBox.intersectsBox(ballBox)) {
