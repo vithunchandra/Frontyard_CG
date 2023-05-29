@@ -644,14 +644,10 @@ grassNormalTexture.repeat.set(50, 50);
 let testingCharacter = undefined;
 new (0, _gltfloader.GLTFLoader)().load(testingCharacterURL.href, (result)=>{
     testingCharacter = result.scene.children[0];
-    testingCharacter.traverse((node1)=>{
-        if (node1.isMesh) node1.castShadow = true;
+    testingCharacter.traverse((node)=>{
+        if (node.isMesh) node.castShadow = true;
     });
     testingCharacter.position.set(0, 0.7, 0);
-    testingCharacter.onClick = ()=>{
-        node.userData.isSelectable = true; // Add a custom property to make it selectable
-        console.log("Character clicked!");
-    };
     controls.target.copy(testingCharacter.position);
     controls.update();
     scene.add(testingCharacter);
@@ -660,8 +656,8 @@ new (0, _gltfloader.GLTFLoader)().load(testingCharacterURL.href, (result)=>{
 let buildings = [];
 for (const building of buildingUrl)new (0, _gltfloader.GLTFLoader)().load(building.url.href, (result)=>{
     const object = result.scene.children[0];
-    object.traverse((node1)=>{
-        if (node1.isMesh) node1.castShadow = true;
+    object.traverse((node)=>{
+        if (node.isMesh) node.castShadow = true;
     });
     const position = building.position;
     object.position.set(position.x, position.y, position.z);
@@ -672,31 +668,19 @@ for (const building of buildingUrl)new (0, _gltfloader.GLTFLoader)().load(buildi
 let ball = undefined;
 new (0, _gltfloader.GLTFLoader)().load(ballUrl.href, (result)=>{
     ball = result.scene.children[0];
-    ball.traverse((node1)=>{
-        if (node1.isMesh) {
-            node1.castShadow = true;
-            node1.userData.isSelectable = true; // Add a custom property to make it selectable
-        }
+    ball.traverse((node)=>{
+        if (node.isMesh) node.castShadow = true;
     });
     ball.position.set(0, -0.7, 5);
-    ball.onClick = ()=>{
-        console.log("Ball clicked!");
-    };
     scene.add(ball);
 });
 let dog = undefined;
 new (0, _gltfloader.GLTFLoader)().load(dogUrl.href, (result)=>{
     dog = result.scene.children[0];
-    dog.traverse((node1)=>{
-        if (node1.isMesh) {
-            node1.castShadow = true;
-            node1.userData.isSelectable = true; // Add a custom property to make it selectable
-        }
+    dog.traverse((node)=>{
+        if (node.isMesh) node.castShadow = true;
     });
     dog.position.set(5, -0.7, 5);
-    dog.onClick = ()=>{
-        console.log("Dog clicked!");
-    };
     scene.add(dog);
 });
 // Tree
@@ -704,8 +688,8 @@ let trees = [];
 for (const tree of treesUrl)new (0, _gltfloader.GLTFLoader)().load(tree.url.href, (result)=>{
     const object = result.scene.children[0];
     console.log(object);
-    object.traverse((node1)=>{
-        if (node1.isMesh) node1.castShadow = true;
+    object.traverse((node)=>{
+        if (node.isMesh) node.castShadow = true;
     });
     const position = tree.position;
     object.position.set(position.x, position.y, position.z);
@@ -734,23 +718,40 @@ for (const tree of treesUrl)new (0, _gltfloader.GLTFLoader)().load(tree.url.href
 //     });
 //   }
 // }
-// Event listener for mouse clicks
-renderer.domElement.addEventListener("click", onClick);
-function onClick(event) {
-    const mouse = new _three.Vector2();
+// Raycaster for object selection
+const raycaster = new _three.Raycaster();
+const mouse = new _three.Vector2();
+// Event listeners for mouse interaction
+window.addEventListener("mousemove", onMouseMove);
+window.addEventListener("mousedown", onMouseDown);
+function onMouseMove(event) {
+    // Calculate normalized device coordinates
     mouse.x = event.clientX / window.innerWidth * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-    const raycaster = new _three.Raycaster();
+}
+function onMouseDown(event) {
     raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObjects(scene.children, true);
-    for (const intersect of intersects){
-        const object = intersect.object;
-        if (object.userData.isSelectable && object.onClick) {
-            object.onClick();
-            break; // Only handle the first selectable object that was clicked
-        }
+    // Check for intersections with character, ball, and dog
+    const intersects = raycaster.intersectObjects([
+        testingCharacter,
+        ball,
+        dog
+    ]);
+    if (intersects.length > 0) {
+        const clickedObject = intersects[0].object;
+        console.log("Clicked Object:", clickedObject);
     }
 }
+// Add renderer to the document
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(window.devicePixelRatio);
+document.body.appendChild(renderer.domElement);
+// Render loop
+function render() {
+    requestAnimationFrame(render);
+    renderer.render(scene, camera);
+}
+render();
 //Settings
 camera.position.set(0, 0, 10);
 renderer.shadowMap.enabled = true;
