@@ -29,23 +29,23 @@ const buildingUrl = [
     position: {
       x: 20,
       y: -1,
-      z: 3,
+      z: 5,
     },
   },
   {
     url: new URL("./assets/House_2.gltf", import.meta.url),
     position: {
-      x: -50,
+      x: -20,
       y: 2,
-      z: 30,
+      z: -25,
     },
   },
   {
     url: new URL("./assets/House_3.gltf", import.meta.url),
     position: {
-      x: 50,
+      x: 20,
       y: 2,
-      z: 15,
+      z: -25,
     },
   },
   {
@@ -55,10 +55,15 @@ const buildingUrl = [
       y: -1,
       z: 5,
     },
-  },
+  }
 ];
+const fieldUrl = new URL('./assets/SportsField.gltf', import.meta.url);
 const ballUrl = new URL("./assets/Ball.gltf", import.meta.url);
 const treesUrl = [
+  //Rumah 1
+  //x: -20,
+  //y: -1,
+  //z: 5,
   {
     url: new URL("./assets/Tree.gltf", import.meta.url),
     position: {
@@ -66,14 +71,98 @@ const treesUrl = [
       y: -1,
       z: 10,
     },
-  },
-  {
+  },{
     url: new URL("./assets/Tree_1.gltf", import.meta.url),
     position: {
-      x: -20,
+      x: -15,
+      y: -1,
+      z: 10,
+    }
+  },{ 
+    url: new URL('./assets/Tree_2.gltf', import.meta.url),
+    position: {
+      x: -10,
+      y: -1,
+      z: -2
+    }
+  },
+  //Rumah 2
+  // x: 20,
+  // y: -1,
+  // z: 5,
+  {
+    url: new URL("./assets/Tree.gltf", import.meta.url),
+    position: {
+      x: 16,
       y: -1,
       z: 10,
     },
+  },{
+    url: new URL("./assets/Tree_1.gltf", import.meta.url),
+    position: {
+      x: 8,
+      y: -1,
+      z: 2,
+    }
+  },{ 
+    url: new URL('./assets/Tree_2.gltf', import.meta.url),
+    position: {
+      x: 25,
+      y: -1,
+      z: -5
+    }
+  },
+  //Rumah 3
+  // x: -20,
+  // y: 2,
+  // z: -25,
+  {
+    url: new URL("./assets/Tree.gltf", import.meta.url),
+    position: {
+      x: -10,
+      y: -1,
+      z: -23,
+    },
+  },{
+    url: new URL("./assets/Tree_1.gltf", import.meta.url),
+    position: {
+      x: -16,
+      y: -1,
+      z: -30,
+    }
+  },{ 
+    url: new URL('./assets/Tree_2.gltf', import.meta.url),
+    position: {
+      x: -22,
+      y: -1,
+      z: -35
+    }
+  },
+  //Rumah 4
+  // x: 20,
+  // y: 2,
+  // z: -25,
+  {
+    url: new URL("./assets/Tree.gltf", import.meta.url),
+    position: {
+      x: 26,
+      y: -1,
+      z: -20,
+    },
+  },{
+    url: new URL("./assets/Tree_1.gltf", import.meta.url),
+    position: {
+      x: 20,
+      y: -1,
+      z: -30,
+    }
+  },{ 
+    url: new URL('./assets/Tree_2.gltf', import.meta.url),
+    position: {
+      x: 10,
+      y: -1,
+      z: -35
+    }
   },
 ];
 const roadUrl =
@@ -225,6 +314,20 @@ for (const building of buildingUrl) {
   });
 }
 
+let field = undefined;
+new GLTFLoader().load(fieldUrl.href, (result) => {
+  const object = result.scene.children[0];
+  object.traverse((node) => {
+    if (node.isMesh) {
+      node.castShadow = true;
+    }
+  });
+  object.position.set(0, -1.2, 70);
+  object.rotation.z = -0.05
+  scene.add(object);
+  field.push(object);
+});
+
 // Ball
 
 let ball = undefined;
@@ -271,7 +374,6 @@ let trees = [];
 for (const tree of treesUrl) {
   new GLTFLoader().load(tree.url.href, (result) => {
     const object = result.scene.children[0];
-    console.log(object);
     object.traverse((node) => {
       if (node.isMesh) {
         node.castShadow = true;
@@ -345,7 +447,6 @@ function onMouseDown(event) {
     } else if (clickedObject.name.includes("Dog")) {
       currentObject = dog;
     }
-    //console.log("Clicked Object:", clickedObject);
   }
 }
 
@@ -439,31 +540,25 @@ function proccessKeyboard() {
     camera.position.x -= 0.25;
     if (currentObject.rotation.z > -1.4) {
       currentObject.rotation.z -= 0.1;
-      console.log(1);
     }
     if (currentObject.rotation.z < -1.5) {
       currentObject.rotation.z += 0.1;
-      console.log(2);
     }
     lastUsedKey = "d";
-    console.log(currentObject.rotation.z);
   }
   if (keyboard["a"]) {
     currentObject.position.x += 0.25;
     camera.position.x += 0.25;
     if (currentObject.rotation.z < 1.5 && currentObject.rotation.z > -1.5) {
       currentObject.rotation.z += 0.1;
-      console.log(3);
     } else if (
       currentObject.rotation.z < -1.5 &&
       currentObject.rotation.z >= -3
     ) {
       if (currentObject.rotation.z - 0.1 <= -3) {
         currentObject.rotation.z = 3;
-        console.log(4);
       } else {
         currentObject.rotation.z -= 0.1;
-        console.log(5);
       }
     } else if (
       currentObject.rotation.z > 1.6 &&
@@ -472,7 +567,6 @@ function proccessKeyboard() {
       currentObject.rotation.z -= 0.1;
     }
     lastUsedKey = "a";
-    console.log(currentObject.rotation.z);
   }
   if (keyboard["w"]) {
     currentObject.position.z += 0.25;
@@ -484,7 +578,6 @@ function proccessKeyboard() {
         } else {
           currentObject.rotation.z += 0.1;
         }
-        console.log(6);
       } else if (
         currentObject.rotation.z <= 3 &&
         currentObject.rotation.z >= 0
@@ -494,35 +587,29 @@ function proccessKeyboard() {
         } else {
           currentObject.rotation.z -= 0.1;
         }
-        console.log(7);
       }
     }
     lastUsedKey = "w";
-    console.log(currentObject.rotation.z);
   }
   if (keyboard["s"]) {
     currentObject.position.z -= 0.25;
     camera.position.z -= 0.25;
     if (currentObject.rotation.z > -3 && currentObject.rotation.z < 3) {
-      console.log("test");
       if (currentObject.rotation.z <= 0) {
         if (currentObject.rotation.z - 0.1 <= -3) {
           currentObject.rotation.z = 3;
         } else {
           currentObject.rotation.z -= 0.1;
         }
-        console.log(8);
       } else if (currentObject.rotation.z >= 0) {
         if (currentObject.rotation.z + 0.1 >= 3) {
           currentObject.rotation.z = -3;
         } else {
           currentObject.rotation.z += 0.1;
         }
-        console.log(9);
       }
     }
     lastUsedKey = "s";
-    console.log(currentObject.rotation.z);
   }
   if (keyboard["f"] && canRide) {
     testingCharacter.position.set(100, 0.7, 0);    
@@ -618,7 +705,7 @@ function checkCollision() {
     }
   }
   for (const tree of trees) {
-    const treeBox = new THREE.Box3().setFromObject(tree);
+    const treeBox = new THREE.Box3().setFromObject(tree).expandByScalar(0.3);
     if (currentObjectBox.intersectsBox(treeBox)) {
       // There is a collision, revert the character's position to the previous position
       currentObject.position.copy(characterPreviousPosition);

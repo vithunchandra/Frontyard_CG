@@ -572,34 +572,34 @@ const renderer = new _three.WebGLRenderer({
     antialias: true
 });
 //Import Assets
-const testingCharacterURL = new URL(require("268f6753eee3f80f"));
+const testingCharacterURL = new URL(require("be097b1d8b748160"));
 const buildingUrl = [
     {
-        url: new URL(require("d5644d973c148d93")),
+        url: new URL(require("a75c11b314255a3e")),
         position: {
             x: 20,
             y: -1,
-            z: 3
+            z: 5
         }
     },
     {
-        url: new URL(require("cc6e6e739cb66abc")),
+        url: new URL(require("4c1bb081f4f58d39")),
         position: {
-            x: -50,
+            x: -20,
             y: 2,
-            z: 30
+            z: -25
         }
     },
     {
-        url: new URL(require("a1b7280dfce2a1a")),
+        url: new URL(require("164a31d1a1e8c22f")),
         position: {
-            x: 50,
+            x: 20,
             y: 2,
-            z: 15
+            z: -25
         }
     },
     {
-        url: new URL(require("5d7df5402ae64597")),
+        url: new URL(require("ec82e908a47f0aec")),
         position: {
             x: -20,
             y: -1,
@@ -607,10 +607,15 @@ const buildingUrl = [
         }
     }
 ];
-const ballUrl = new URL(require("42fa44a534a5da02"));
+const fieldUrl = new URL(require("97e717c146d3ef25"));
+const ballUrl = new URL(require("1509d7d01b7f611d"));
 const treesUrl = [
+    //Rumah 1
+    //x: -20,
+    //y: -1,
+    //z: 5,
     {
-        url: new URL(require("e95c0313a751195b")),
+        url: new URL(require("93e2dbc2693f5bca")),
         position: {
             x: -20,
             y: -1,
@@ -618,16 +623,108 @@ const treesUrl = [
         }
     },
     {
-        url: new URL(require("e68cd17db40b0de5")),
+        url: new URL(require("978fb4ce9e17726e")),
         position: {
-            x: -20,
+            x: -15,
             y: -1,
             z: 10
+        }
+    },
+    {
+        url: new URL(require("ce5f59bfcb2662ba")),
+        position: {
+            x: -10,
+            y: -1,
+            z: -2
+        }
+    },
+    //Rumah 2
+    // x: 20,
+    // y: -1,
+    // z: 5,
+    {
+        url: new URL(require("93e2dbc2693f5bca")),
+        position: {
+            x: 16,
+            y: -1,
+            z: 10
+        }
+    },
+    {
+        url: new URL(require("978fb4ce9e17726e")),
+        position: {
+            x: 8,
+            y: -1,
+            z: 2
+        }
+    },
+    {
+        url: new URL(require("ce5f59bfcb2662ba")),
+        position: {
+            x: 25,
+            y: -1,
+            z: -5
+        }
+    },
+    //Rumah 3
+    // x: -20,
+    // y: 2,
+    // z: -25,
+    {
+        url: new URL(require("93e2dbc2693f5bca")),
+        position: {
+            x: -10,
+            y: -1,
+            z: -23
+        }
+    },
+    {
+        url: new URL(require("978fb4ce9e17726e")),
+        position: {
+            x: -16,
+            y: -1,
+            z: -30
+        }
+    },
+    {
+        url: new URL(require("ce5f59bfcb2662ba")),
+        position: {
+            x: -22,
+            y: -1,
+            z: -35
+        }
+    },
+    //Rumah 4
+    // x: 20,
+    // y: 2,
+    // z: -25,
+    {
+        url: new URL(require("93e2dbc2693f5bca")),
+        position: {
+            x: 26,
+            y: -1,
+            z: -20
+        }
+    },
+    {
+        url: new URL(require("978fb4ce9e17726e")),
+        position: {
+            x: 20,
+            y: -1,
+            z: -30
+        }
+    },
+    {
+        url: new URL(require("ce5f59bfcb2662ba")),
+        position: {
+            x: 10,
+            y: -1,
+            z: -35
         }
     }
 ];
 const roadUrl = {
-    url: new URL(require("b0d8dfe1a166f492")),
+    url: new URL(require("44f2021b31fc9077")),
     position: [
         {
             x: 4,
@@ -716,9 +813,9 @@ const roadUrl = {
     ]
 };
 // 68
-const grassUrl = new URL(require("2be5938884f15c10"));
-const dogUrl = new URL(require("eac9433bfe85f51e"));
-const carUrl = new URL(require("ba99a7e3cd58f5b1"));
+const grassUrl = new URL(require("f69d6ab0f307b848"));
+const dogUrl = new URL(require("d4c108b2e4af074d"));
+const carUrl = new URL(require("d16f32e52667838d"));
 // const texture = new THREE.TextureLoader().load(cloth);
 //Loading Assets
 const grassBaseTexture = new _three.TextureLoader().load(_lambert1BaseColorPng);
@@ -767,6 +864,17 @@ for (const building of buildingUrl)new (0, _gltfloader.GLTFLoader)().load(buildi
     scene.add(object);
     buildings.push(object);
 });
+let field = undefined;
+new (0, _gltfloader.GLTFLoader)().load(fieldUrl.href, (result)=>{
+    const object = result.scene.children[0];
+    object.traverse((node)=>{
+        if (node.isMesh) node.castShadow = true;
+    });
+    object.position.set(0, -1.2, 70);
+    object.rotation.z = -0.05;
+    scene.add(object);
+    field.push(object);
+});
 // Ball
 let ball = undefined;
 new (0, _gltfloader.GLTFLoader)().load(ballUrl.href, (result)=>{
@@ -802,7 +910,6 @@ new (0, _gltfloader.GLTFLoader)().load(carUrl.href, (result)=>{
 let trees = [];
 for (const tree of treesUrl)new (0, _gltfloader.GLTFLoader)().load(tree.url.href, (result)=>{
     const object = result.scene.children[0];
-    console.log(object);
     object.traverse((node)=>{
         if (node.isMesh) node.castShadow = true;
     });
@@ -858,7 +965,6 @@ function onMouseDown(event) {
         if (clickedObject.name == "Character") currentObject = testingCharacter;
         else if (clickedObject.name.includes("FootballBall")) currentObject = ball;
         else if (clickedObject.name.includes("Dog")) currentObject = dog;
-    //console.log("Clicked Object:", clickedObject);
     }
 }
 // Add renderer to the document
@@ -932,34 +1038,19 @@ function proccessKeyboard() {
     if (keyboard["d"]) {
         currentObject.position.x -= 0.25;
         camera.position.x -= 0.25;
-        if (currentObject.rotation.z > -1.4) {
-            currentObject.rotation.z -= 0.1;
-            console.log(1);
-        }
-        if (currentObject.rotation.z < -1.5) {
-            currentObject.rotation.z += 0.1;
-            console.log(2);
-        }
+        if (currentObject.rotation.z > -1.4) currentObject.rotation.z -= 0.1;
+        if (currentObject.rotation.z < -1.5) currentObject.rotation.z += 0.1;
         lastUsedKey = "d";
-        console.log(currentObject.rotation.z);
     }
     if (keyboard["a"]) {
         currentObject.position.x += 0.25;
         camera.position.x += 0.25;
-        if (currentObject.rotation.z < 1.5 && currentObject.rotation.z > -1.5) {
-            currentObject.rotation.z += 0.1;
-            console.log(3);
-        } else if (currentObject.rotation.z < -1.5 && currentObject.rotation.z >= -3) {
-            if (currentObject.rotation.z - 0.1 <= -3) {
-                currentObject.rotation.z = 3;
-                console.log(4);
-            } else {
-                currentObject.rotation.z -= 0.1;
-                console.log(5);
-            }
+        if (currentObject.rotation.z < 1.5 && currentObject.rotation.z > -1.5) currentObject.rotation.z += 0.1;
+        else if (currentObject.rotation.z < -1.5 && currentObject.rotation.z >= -3) {
+            if (currentObject.rotation.z - 0.1 <= -3) currentObject.rotation.z = 3;
+            else currentObject.rotation.z -= 0.1;
         } else if (currentObject.rotation.z > 1.6 && currentObject.rotation.z <= 3) currentObject.rotation.z -= 0.1;
         lastUsedKey = "a";
-        console.log(currentObject.rotation.z);
     }
     if (keyboard["w"]) {
         currentObject.position.z += 0.25;
@@ -968,33 +1059,26 @@ function proccessKeyboard() {
             if (currentObject.rotation.z >= -3 && currentObject.rotation.z <= 0) {
                 if (currentObject.rotation.z + 0.1 >= 0) currentObject.rotation.z = 0;
                 else currentObject.rotation.z += 0.1;
-                console.log(6);
             } else if (currentObject.rotation.z <= 3 && currentObject.rotation.z >= 0) {
                 if (currentObject.rotation.z - 0.1 <= 0) currentObject.rotation.z = 0;
                 else currentObject.rotation.z -= 0.1;
-                console.log(7);
             }
         }
         lastUsedKey = "w";
-        console.log(currentObject.rotation.z);
     }
     if (keyboard["s"]) {
         currentObject.position.z -= 0.25;
         camera.position.z -= 0.25;
         if (currentObject.rotation.z > -3 && currentObject.rotation.z < 3) {
-            console.log("test");
             if (currentObject.rotation.z <= 0) {
                 if (currentObject.rotation.z - 0.1 <= -3) currentObject.rotation.z = 3;
                 else currentObject.rotation.z -= 0.1;
-                console.log(8);
             } else if (currentObject.rotation.z >= 0) {
                 if (currentObject.rotation.z + 0.1 >= 3) currentObject.rotation.z = -3;
                 else currentObject.rotation.z += 0.1;
-                console.log(9);
             }
         }
         lastUsedKey = "s";
-        console.log(currentObject.rotation.z);
     }
     if (keyboard["f"] && canRide) {
         testingCharacter.position.set(100, 0.7, 0);
@@ -1070,7 +1154,7 @@ function checkCollision() {
         }
     }
     for (const tree of trees){
-        const treeBox = new _three.Box3().setFromObject(tree);
+        const treeBox = new _three.Box3().setFromObject(tree).expandByScalar(0.3);
         if (currentObjectBox.intersectsBox(treeBox)) // There is a collision, revert the character's position to the previous position
         currentObject.position.copy(characterPreviousPosition);
         if (ballBox.intersectsBox(treeBox)) {
@@ -1089,7 +1173,7 @@ function draw() {
 }
 draw();
 
-},{"three":"ktPTu","../node_modules/three/examples/jsm/controls/OrbitControls":"7mqRv","../node_modules/three/examples/jsm/controls/TrackballControls":"1AMKo","../node_modules/three/examples/jsm/loaders/GLTFLoader":"dVRsF","./assets/Cloth.png":"663Y5","./assets/Texture/lambert1_baseColor.png":"3YuQJ","./assets/Texture/lambert1_normal.png":"79D30","268f6753eee3f80f":"c2dXg","d5644d973c148d93":"3sPsz","cc6e6e739cb66abc":"gINkT","a1b7280dfce2a1a":"8TBdy","5d7df5402ae64597":"9cd6R","42fa44a534a5da02":"492F0","e95c0313a751195b":"1bQ6N","e68cd17db40b0de5":"kZSDj","b0d8dfe1a166f492":"6zfdj","2be5938884f15c10":"1ais3","eac9433bfe85f51e":"5Jp9V","ba99a7e3cd58f5b1":"3uEkT"}],"ktPTu":[function(require,module,exports) {
+},{"three":"ktPTu","../node_modules/three/examples/jsm/controls/OrbitControls":"7mqRv","../node_modules/three/examples/jsm/controls/TrackballControls":"1AMKo","../node_modules/three/examples/jsm/loaders/GLTFLoader":"dVRsF","./assets/Cloth.png":"663Y5","./assets/Texture/lambert1_baseColor.png":"3YuQJ","./assets/Texture/lambert1_normal.png":"79D30","be097b1d8b748160":"c2dXg","a75c11b314255a3e":"3sPsz","4c1bb081f4f58d39":"gINkT","164a31d1a1e8c22f":"8TBdy","ec82e908a47f0aec":"9cd6R","1509d7d01b7f611d":"492F0","93e2dbc2693f5bca":"1bQ6N","978fb4ce9e17726e":"kZSDj","44f2021b31fc9077":"6zfdj","f69d6ab0f307b848":"1ais3","d4c108b2e4af074d":"5Jp9V","d16f32e52667838d":"3uEkT","97e717c146d3ef25":"hFyWy","ce5f59bfcb2662ba":"82GbS"}],"ktPTu":[function(require,module,exports) {
 /**
  * @license
  * Copyright 2010-2023 Three.js Authors
@@ -35014,9 +35098,9 @@ function mergeBufferAttributes(attributes) {
 }
 
 },{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"663Y5":[function(require,module,exports) {
-module.exports = require("4f7454c5d4159f0b").getBundleURL("eFXzA") + "Cloth.c848aea3.png" + "?" + Date.now();
+module.exports = require("1879a1a74e909b01").getBundleURL("eFXzA") + "Cloth.c848aea3.png" + "?" + Date.now();
 
-},{"4f7454c5d4159f0b":"lgJ39"}],"lgJ39":[function(require,module,exports) {
+},{"1879a1a74e909b01":"lgJ39"}],"lgJ39":[function(require,module,exports) {
 "use strict";
 var bundleURL = {};
 function getBundleURLCached(id) {
@@ -35051,47 +35135,53 @@ exports.getBaseURL = getBaseURL;
 exports.getOrigin = getOrigin;
 
 },{}],"3YuQJ":[function(require,module,exports) {
-module.exports = require("f924bfc52e94d5e7").getBundleURL("eFXzA") + "lambert1_baseColor.d2086c4c.png" + "?" + Date.now();
+module.exports = require("3c721a4fff774a9d").getBundleURL("eFXzA") + "lambert1_baseColor.d2086c4c.png" + "?" + Date.now();
 
-},{"f924bfc52e94d5e7":"lgJ39"}],"79D30":[function(require,module,exports) {
-module.exports = require("65d43866a26ec6d3").getBundleURL("eFXzA") + "lambert1_normal.89f962c5.png" + "?" + Date.now();
+},{"3c721a4fff774a9d":"lgJ39"}],"79D30":[function(require,module,exports) {
+module.exports = require("65faf88dc677c830").getBundleURL("eFXzA") + "lambert1_normal.89f962c5.png" + "?" + Date.now();
 
-},{"65d43866a26ec6d3":"lgJ39"}],"c2dXg":[function(require,module,exports) {
-module.exports = require("f79a4f902dc15c1e").getBundleURL("eFXzA") + "characterTesting.f4dd0183.gltf" + "?" + Date.now();
+},{"65faf88dc677c830":"lgJ39"}],"c2dXg":[function(require,module,exports) {
+module.exports = require("aa740d512e1e6863").getBundleURL("eFXzA") + "characterTesting.f4dd0183.gltf" + "?" + Date.now();
 
-},{"f79a4f902dc15c1e":"lgJ39"}],"3sPsz":[function(require,module,exports) {
-module.exports = require("d6f4e4bd1decbe0e").getBundleURL("eFXzA") + "House_1.b68df84a.gltf" + "?" + Date.now();
+},{"aa740d512e1e6863":"lgJ39"}],"3sPsz":[function(require,module,exports) {
+module.exports = require("683d2b8cc22b46f8").getBundleURL("eFXzA") + "House_1.b68df84a.gltf" + "?" + Date.now();
 
-},{"d6f4e4bd1decbe0e":"lgJ39"}],"gINkT":[function(require,module,exports) {
-module.exports = require("4f42a33861cc104b").getBundleURL("eFXzA") + "House_2.e42d2c75.gltf" + "?" + Date.now();
+},{"683d2b8cc22b46f8":"lgJ39"}],"gINkT":[function(require,module,exports) {
+module.exports = require("1a5477bea46e6dd8").getBundleURL("eFXzA") + "House_2.e42d2c75.gltf" + "?" + Date.now();
 
-},{"4f42a33861cc104b":"lgJ39"}],"8TBdy":[function(require,module,exports) {
-module.exports = require("f7b5a0c3332d7c98").getBundleURL("eFXzA") + "House_3.fe121d67.gltf" + "?" + Date.now();
+},{"1a5477bea46e6dd8":"lgJ39"}],"8TBdy":[function(require,module,exports) {
+module.exports = require("be90a0728dd5d16a").getBundleURL("eFXzA") + "House_3.fe121d67.gltf" + "?" + Date.now();
 
-},{"f7b5a0c3332d7c98":"lgJ39"}],"9cd6R":[function(require,module,exports) {
-module.exports = require("21dec8b4d7d06ac2").getBundleURL("eFXzA") + "Tower.0867ce29.gltf" + "?" + Date.now();
+},{"be90a0728dd5d16a":"lgJ39"}],"9cd6R":[function(require,module,exports) {
+module.exports = require("d775be1819138ac8").getBundleURL("eFXzA") + "Tower.0867ce29.gltf" + "?" + Date.now();
 
-},{"21dec8b4d7d06ac2":"lgJ39"}],"492F0":[function(require,module,exports) {
-module.exports = require("4695dcfedaec2255").getBundleURL("eFXzA") + "Ball.de3d54a9.gltf" + "?" + Date.now();
+},{"d775be1819138ac8":"lgJ39"}],"492F0":[function(require,module,exports) {
+module.exports = require("8bf0f8df20eb1c74").getBundleURL("eFXzA") + "Ball.de3d54a9.gltf" + "?" + Date.now();
 
-},{"4695dcfedaec2255":"lgJ39"}],"1bQ6N":[function(require,module,exports) {
-module.exports = require("773eefbea68c8c8a").getBundleURL("eFXzA") + "Tree.d8bcbbb0.gltf" + "?" + Date.now();
+},{"8bf0f8df20eb1c74":"lgJ39"}],"1bQ6N":[function(require,module,exports) {
+module.exports = require("62941362c7cd2e6").getBundleURL("eFXzA") + "Tree.d8bcbbb0.gltf" + "?" + Date.now();
 
-},{"773eefbea68c8c8a":"lgJ39"}],"kZSDj":[function(require,module,exports) {
-module.exports = require("a51b79c4bd6d1237").getBundleURL("eFXzA") + "Tree_1.74e5fb3e.gltf" + "?" + Date.now();
+},{"62941362c7cd2e6":"lgJ39"}],"kZSDj":[function(require,module,exports) {
+module.exports = require("761aef7101d3dd6c").getBundleURL("eFXzA") + "Tree_1.74e5fb3e.gltf" + "?" + Date.now();
 
-},{"a51b79c4bd6d1237":"lgJ39"}],"6zfdj":[function(require,module,exports) {
-module.exports = require("10abc9e1443b1c7f").getBundleURL("eFXzA") + "Road_2.9f729f2f.gltf" + "?" + Date.now();
+},{"761aef7101d3dd6c":"lgJ39"}],"6zfdj":[function(require,module,exports) {
+module.exports = require("fba51202c7974399").getBundleURL("eFXzA") + "Road_2.9f729f2f.gltf" + "?" + Date.now();
 
-},{"10abc9e1443b1c7f":"lgJ39"}],"1ais3":[function(require,module,exports) {
-module.exports = require("faa5b9f6f2e220b").getBundleURL("eFXzA") + "Grass.6442f7da.gltf" + "?" + Date.now();
+},{"fba51202c7974399":"lgJ39"}],"1ais3":[function(require,module,exports) {
+module.exports = require("53573b02a66ad535").getBundleURL("eFXzA") + "Grass.6442f7da.gltf" + "?" + Date.now();
 
-},{"faa5b9f6f2e220b":"lgJ39"}],"5Jp9V":[function(require,module,exports) {
-module.exports = require("ec259148e2bfcf9d").getBundleURL("eFXzA") + "Dog.a26f7786.gltf" + "?" + Date.now();
+},{"53573b02a66ad535":"lgJ39"}],"5Jp9V":[function(require,module,exports) {
+module.exports = require("4f7632ebc12c3242").getBundleURL("eFXzA") + "Dog.a26f7786.gltf" + "?" + Date.now();
 
-},{"ec259148e2bfcf9d":"lgJ39"}],"3uEkT":[function(require,module,exports) {
-module.exports = require("90dc4a2eb0b4b8d1").getBundleURL("eFXzA") + "Car.7ae4518a.gltf" + "?" + Date.now();
+},{"4f7632ebc12c3242":"lgJ39"}],"3uEkT":[function(require,module,exports) {
+module.exports = require("34791fc0f4cfa65d").getBundleURL("eFXzA") + "Car.7ae4518a.gltf" + "?" + Date.now();
 
-},{"90dc4a2eb0b4b8d1":"lgJ39"}]},["2FxBI","dfcLp"], "dfcLp", "parcelRequire94c2")
+},{"34791fc0f4cfa65d":"lgJ39"}],"hFyWy":[function(require,module,exports) {
+module.exports = require("47ee5f456b38b5d9").getBundleURL("eFXzA") + "SportsField.e901bb9f.gltf" + "?" + Date.now();
+
+},{"47ee5f456b38b5d9":"lgJ39"}],"82GbS":[function(require,module,exports) {
+module.exports = require("51dcfbc86193b12c").getBundleURL("eFXzA") + "Tree_2.5cb88b6a.gltf" + "?" + Date.now();
+
+},{"51dcfbc86193b12c":"lgJ39"}]},["2FxBI","dfcLp"], "dfcLp", "parcelRequire94c2")
 
 //# sourceMappingURL=index.2cd6e930.js.map
