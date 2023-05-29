@@ -152,7 +152,8 @@ new GLTFLoader().load(dogUrl.href, (result) => {
       node.castShadow = true;
     }
   });
-  dog.position.set(5, -0.7, 5);
+  dog.position.set(5, -1, 5);
+  dog.name = 'Dog'
   scene.add(dog);
 });
 
@@ -223,11 +224,12 @@ function onMouseDown(event) {
   const intersects = raycaster.intersectObjects([testingCharacter, ball, dog]);
   if (intersects.length > 0) {
     const clickedObject = intersects[0].object;
+    console.log(clickedObject.name);
     if (clickedObject.name == "Character") {
       currentObject = testingCharacter;
     } else if (clickedObject.name.includes("FootballBall")) {
       currentObject = ball;
-    } else if (clickedObject.name == "Dog") {
+    } else if (clickedObject.name.includes("Dog")) {
       currentObject = dog;
     }
     //console.log("Clicked Object:", clickedObject);
