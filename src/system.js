@@ -434,11 +434,6 @@ let lastUsedKey = null;
 let currentObject = null;
 
 function proccessKeyboard() {
-  console.log(currentObject);
-  console.log(currentObject.position.x);
-  console.log(currentObject.position.y);
-  console.log(currentObject.position.z);
-  ballPreviousPosition.copy(ball.position);
   if (keyboard["d"]) {
     currentObject.position.x -= 0.25;
     camera.position.x -= 0.25;
@@ -605,9 +600,9 @@ function checkCollision() {
           ballMovement.x = -ballSpeed;
           break;
       }
+      ballPreviousPosition.copy(ball.position);
+      ball.position.add(ballMovement);
     }
-    ballPreviousPosition.copy(ball.position);
-    ball.position.add(ballMovement);
   }
 
   for (const building of buildings) {
@@ -616,12 +611,22 @@ function checkCollision() {
       // There is a collision, revert the character's position to the previous position
       currentObject.position.copy(characterPreviousPosition);
     }
+    if (ballBox.intersectsBox(buildingBox)) {
+      // There is a collision, revert the character's position to the previous position
+      currentObject.position.copy(characterPreviousPosition);
+      ball.position.copy(ballPreviousPosition);
+    }
   }
   for (const tree of trees) {
     const treeBox = new THREE.Box3().setFromObject(tree);
     if (currentObjectBox.intersectsBox(treeBox)) {
       // There is a collision, revert the character's position to the previous position
       currentObject.position.copy(characterPreviousPosition);
+    }
+    if (ballBox.intersectsBox(treeBox)) {
+      // There is a collision, revert the character's position to the previous position
+      currentObject.position.copy(characterPreviousPosition);
+      ball.position.copy(ballPreviousPosition);
     }
   }
 }

@@ -929,11 +929,6 @@ function updateCharacterPosition() {
 let lastUsedKey = null;
 let currentObject = null;
 function proccessKeyboard() {
-    console.log(currentObject);
-    console.log(currentObject.position.x);
-    console.log(currentObject.position.y);
-    console.log(currentObject.position.z);
-    ballPreviousPosition.copy(ball.position);
     if (keyboard["d"]) {
         currentObject.position.x -= 0.25;
         camera.position.x -= 0.25;
@@ -1045,32 +1040,44 @@ function checkCollision() {
         // There is a collision between the character and the ball
         const ballSpeed = 1;
         const ballMovement = new _three.Vector3();
-        if (currentObject !== ball) switch(lastUsedKey){
-            case "w":
-                ballMovement.z = ballSpeed;
-                break;
-            case "a":
-                ballMovement.x = ballSpeed;
-                break;
-            case "s":
-                ballMovement.z = -ballSpeed;
-                break;
-            case "d":
-                ballMovement.x = -ballSpeed;
-                break;
+        if (currentObject !== ball) {
+            switch(lastUsedKey){
+                case "w":
+                    ballMovement.z = ballSpeed;
+                    break;
+                case "a":
+                    ballMovement.x = ballSpeed;
+                    break;
+                case "s":
+                    ballMovement.z = -ballSpeed;
+                    break;
+                case "d":
+                    ballMovement.x = -ballSpeed;
+                    break;
+            }
+            ballPreviousPosition.copy(ball.position);
+            ball.position.add(ballMovement);
         }
-        ballPreviousPosition.copy(ball.position);
-        ball.position.add(ballMovement);
     }
     for (const building of buildings){
         const buildingBox = new _three.Box3().setFromObject(building);
         if (currentObjectBox.intersectsBox(buildingBox)) // There is a collision, revert the character's position to the previous position
         currentObject.position.copy(characterPreviousPosition);
+        if (ballBox.intersectsBox(buildingBox)) {
+            // There is a collision, revert the character's position to the previous position
+            currentObject.position.copy(characterPreviousPosition);
+            ball.position.copy(ballPreviousPosition);
+        }
     }
     for (const tree of trees){
         const treeBox = new _three.Box3().setFromObject(tree);
         if (currentObjectBox.intersectsBox(treeBox)) // There is a collision, revert the character's position to the previous position
         currentObject.position.copy(characterPreviousPosition);
+        if (ballBox.intersectsBox(treeBox)) {
+            // There is a collision, revert the character's position to the previous position
+            currentObject.position.copy(characterPreviousPosition);
+            ball.position.copy(ballPreviousPosition);
+        }
     }
 }
 let clock = new _three.Clock();
