@@ -739,7 +739,12 @@ function onMouseDown(event) {
     ]);
     if (intersects.length > 0) {
         const clickedObject = intersects[0].object;
-        console.log("Clicked Object:", clickedObject);
+        if (clickedObject.name == "Character") currentObject = testingCharacter;
+        else if (clickedObject.name.includes("FootballBall")) currentObject = ball;
+        else if (clickedObject.name == "Dog") currentObject = dog;
+        console.log(clickedObject.name);
+        console.log(testingCharacter);
+    //console.log("Clicked Object:", clickedObject);
     }
 }
 // Add renderer to the document
@@ -803,85 +808,86 @@ document.body.addEventListener("keyup", (evt)=>{
 let characterPreviousPosition = new _three.Vector3();
 let ballPreviousPosition = new _three.Vector3();
 function updateCharacterPosition() {
-    characterPreviousPosition.copy(testingCharacter.position);
+    characterPreviousPosition.copy(currentObject.position);
     proccessKeyboard();
     checkCollision();
 }
 let lastUsedKey = null;
+let currentObject = null;
 function proccessKeyboard() {
     if (keyboard["d"]) {
-        testingCharacter.position.x -= 0.25;
+        currentObject.position.x -= 0.25;
         camera.position.x -= 0.25;
-        if (testingCharacter.rotation.z > -1.4) {
-            testingCharacter.rotation.z -= 0.1;
+        if (currentObject.rotation.z > -1.4) {
+            currentObject.rotation.z -= 0.1;
             console.log(1);
         }
-        if (testingCharacter.rotation.z < -1.5) {
-            testingCharacter.rotation.z += 0.1;
+        if (currentObject.rotation.z < -1.5) {
+            currentObject.rotation.z += 0.1;
             console.log(2);
         }
         lastUsedKey = "d";
-        console.log(testingCharacter.rotation.z);
+        console.log(currentObject.rotation.z);
     }
     if (keyboard["a"]) {
-        testingCharacter.position.x += 0.25;
+        currentObject.position.x += 0.25;
         camera.position.x += 0.25;
-        if (testingCharacter.rotation.z < 1.5 && testingCharacter.rotation.z > -1.5) {
-            testingCharacter.rotation.z += 0.1;
+        if (currentObject.rotation.z < 1.5 && currentObject.rotation.z > -1.5) {
+            currentObject.rotation.z += 0.1;
             console.log(3);
-        } else if (testingCharacter.rotation.z < -1.5 && testingCharacter.rotation.z >= -3) {
-            if (testingCharacter.rotation.z - 0.1 <= -3) {
-                testingCharacter.rotation.z = 3;
+        } else if (currentObject.rotation.z < -1.5 && currentObject.rotation.z >= -3) {
+            if (currentObject.rotation.z - 0.1 <= -3) {
+                currentObject.rotation.z = 3;
                 console.log(4);
             } else {
-                testingCharacter.rotation.z -= 0.1;
+                currentObject.rotation.z -= 0.1;
                 console.log(5);
             }
-        } else if (testingCharacter.rotation.z > 1.6 && testingCharacter.rotation.z <= 3) testingCharacter.rotation.z -= 0.1;
+        } else if (currentObject.rotation.z > 1.6 && currentObject.rotation.z <= 3) currentObject.rotation.z -= 0.1;
         lastUsedKey = "a";
-        console.log(testingCharacter.rotation.z);
+        console.log(currentObject.rotation.z);
     }
     if (keyboard["w"]) {
-        testingCharacter.position.z += 0.25;
+        currentObject.position.z += 0.25;
         camera.position.z += 0.25;
-        if (Math.floor(testingCharacter.rotation) !== 0) {
-            if (testingCharacter.rotation.z >= -3 && testingCharacter.rotation.z <= 0) {
-                if (testingCharacter.rotation.z + 0.1 >= 0) testingCharacter.rotation.z = 0;
-                else testingCharacter.rotation.z += 0.1;
+        if (Math.floor(currentObject.rotation) !== 0) {
+            if (currentObject.rotation.z >= -3 && currentObject.rotation.z <= 0) {
+                if (currentObject.rotation.z + 0.1 >= 0) currentObject.rotation.z = 0;
+                else currentObject.rotation.z += 0.1;
                 console.log(6);
-            } else if (testingCharacter.rotation.z <= 3 && testingCharacter.rotation.z >= 0) {
-                if (testingCharacter.rotation.z - 0.1 <= 0) testingCharacter.rotation.z = 0;
-                else testingCharacter.rotation.z -= 0.1;
+            } else if (currentObject.rotation.z <= 3 && currentObject.rotation.z >= 0) {
+                if (currentObject.rotation.z - 0.1 <= 0) currentObject.rotation.z = 0;
+                else currentObject.rotation.z -= 0.1;
                 console.log(7);
             }
         }
         lastUsedKey = "w";
-        console.log(testingCharacter.rotation.z);
+        console.log(currentObject.rotation.z);
     }
     if (keyboard["s"]) {
-        testingCharacter.position.z -= 0.25;
+        currentObject.position.z -= 0.25;
         camera.position.z -= 0.25;
-        if (testingCharacter.rotation.z > -3 && testingCharacter.rotation.z < 3) {
+        if (currentObject.rotation.z > -3 && currentObject.rotation.z < 3) {
             console.log("test");
-            if (testingCharacter.rotation.z <= 0) {
-                if (testingCharacter.rotation.z - 0.1 <= -3) testingCharacter.rotation.z = 3;
-                else testingCharacter.rotation.z -= 0.1;
+            if (currentObject.rotation.z <= 0) {
+                if (currentObject.rotation.z - 0.1 <= -3) currentObject.rotation.z = 3;
+                else currentObject.rotation.z -= 0.1;
                 console.log(8);
-            } else if (testingCharacter.rotation.z >= 0) {
-                if (testingCharacter.rotation.z + 0.1 >= 3) testingCharacter.rotation.z = -3;
-                else testingCharacter.rotation.z += 0.1;
+            } else if (currentObject.rotation.z >= 0) {
+                if (currentObject.rotation.z + 0.1 >= 3) currentObject.rotation.z = -3;
+                else currentObject.rotation.z += 0.1;
                 console.log(9);
             }
         }
         lastUsedKey = "s";
-        console.log(testingCharacter.rotation.z);
+        console.log(currentObject.rotation.z);
     }
     const objectPosition = new _three.Vector3();
-    testingCharacter.getWorldPosition(objectPosition);
-    camera.lookAt(testingCharacter.position);
+    currentObject.getWorldPosition(objectPosition);
+    camera.lookAt(currentObject.position);
     controls.target.copy(objectPosition);
     controls.update();
-//   controls.target.copy(testingCharacter.position);
+//   controls.target.copy(currentObject.position);
 //   controls.update();
 }
 window.addEventListener("resize", ()=>{
@@ -894,40 +900,42 @@ function randomNumber() {
     return Math.floor(Math.random() * 50) + 1;
 }
 function checkCollision() {
-    const characterBox = new _three.Box3().setFromObject(testingCharacter);
+    const characterBox = new _three.Box3().setFromObject(currentObject);
     const ballBox = new _three.Box3().setFromObject(ball);
     if (characterBox.intersectsBox(ballBox)) {
         // There is a collision between the character and the ball
         const ballSpeed = 1;
         const ballMovement = new _three.Vector3();
-        switch(lastUsedKey){
-            case "w":
-                ballMovement.z = ballSpeed;
-                break;
-            case "a":
-                ballMovement.x = ballSpeed;
-                break;
-            case "s":
-                ballMovement.z = -ballSpeed;
-                break;
-            case "d":
-                ballMovement.x = -ballSpeed;
-                break;
+        if (currentObject !== ball) {
+            switch(lastUsedKey){
+                case "w":
+                    ballMovement.z = ballSpeed;
+                    break;
+                case "a":
+                    ballMovement.x = ballSpeed;
+                    break;
+                case "s":
+                    ballMovement.z = -ballSpeed;
+                    break;
+                case "d":
+                    ballMovement.x = -ballSpeed;
+                    break;
+            }
+            ballPreviousPosition.copy(ball.position);
+            ball.position.add(ballMovement);
         }
-        ballPreviousPosition.copy(ball.position);
-        ball.position.add(ballMovement);
     }
     for (const building of buildings){
         const buildingBox = new _three.Box3().setFromObject(building);
         if (characterBox.intersectsBox(buildingBox)) // There is a collision, revert the character's position to the previous position
-        testingCharacter.position.copy(characterPreviousPosition);
+        currentObject.position.copy(characterPreviousPosition);
         if (ballBox.intersectsBox(buildingBox)) // There is a collision between the ball and a building
         ball.position.copy(ballPreviousPosition);
     }
     for (const tree of trees){
         const treeBox = new _three.Box3().setFromObject(tree);
         if (characterBox.intersectsBox(treeBox)) // There is a collision, revert the character's position to the previous position
-        testingCharacter.position.copy(characterPreviousPosition);
+        currentObject.position.copy(characterPreviousPosition);
         if (ballBox.intersectsBox(treeBox)) // There is a collision between the ball and a building
         ball.position.copy(ballPreviousPosition);
     }
