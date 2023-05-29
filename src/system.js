@@ -76,6 +76,84 @@ const treesUrl = [
     },
   },
 ];
+const roadUrl =
+  {
+    url: new URL('./assets/Road_2.gltf', import.meta.url),
+    position: [
+      {
+        x: 4,
+        y: -1.2,
+        z: -30,
+        rotationZ: 1.62
+      }, {
+        x: 5.5,
+        y: -1.2,
+        z: 2,
+        rotationZ: 1.62
+      }, {
+        x: -15,
+        y: -1.2,
+        z: -8,
+        rotationZ: 0.05
+      }, {
+        x: 15,
+        y: -1.2,
+        z: -9.5,
+        rotationZ: 0.05
+      },{
+        x: 38,
+        y: -1.2,
+        z: -30,
+        rotationZ: 1.62
+      }, {
+        x: 39.5,
+        y: -1.2,
+        z: 2,
+        rotationZ: 1.62
+      },{
+        x: -30,
+        y: -1.2,
+        z: -30,
+        rotationZ: 1.62
+      }, {
+        x: -28.5,
+        y: -1.2,
+        z: 2,
+        rotationZ: 1.62
+      }, {
+        x: -24,
+        y: -1.2,
+        z: -42,
+        rotationZ: 0.05
+      }, {
+        x: 7,
+        y: -1.2,
+        z: -43.5,
+        rotationZ: 0.05
+      }, {
+        x: 20,
+        y: -1.2,
+        z: -44,
+        rotationZ: 0.05
+      }, {
+        x: -21,
+        y: -1.2,
+        z: 26,
+        rotationZ: 0.05
+      }, {
+        x: 10,
+        y: -1.2,
+        z: 24.5,
+        rotationZ: 0.05
+      }, {
+        x: 23,
+        y: -1.2,
+        z: 24,
+        rotationZ: 0.05
+      }
+    ]
+  }
+// 68
 const grassUrl = new URL("./assets/Grass.gltf", import.meta.url);
 const dogUrl = new URL("./assets/Dog.gltf", import.meta.url);
 const carUrl = new URL("./assets/Car.gltf", import.meta.url);
@@ -112,6 +190,22 @@ new GLTFLoader().load(testingCharacterURL.href, (result) => {
   scene.add(testingCharacter);
 });
 
+// Road
+let roads = [];
+for(const road of roadUrl.position){
+  new GLTFLoader().load(roadUrl.url.href, (result) => {
+    const object = result.scene.children[0];
+    object.traverse((node) => {
+      if (node.isMesh) {
+        node.castShadow = true;
+      }
+    });
+    object.position.set(road.x, road.y, road.z);
+    object.rotation.z = road.rotationZ;
+    scene.add(object);
+    roads.push(object);
+  });
+}
 // Buildings
 
 let buildings = [];
