@@ -230,8 +230,6 @@ function onMouseDown(event) {
     } else if (clickedObject.name == "Dog") {
       currentObject = dog;
     }
-    console.log(clickedObject.name);
-    console.log(testingCharacter);
     //console.log("Clicked Object:", clickedObject);
   }
 }
