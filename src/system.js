@@ -78,6 +78,7 @@ const treesUrl = [
 ];
 const grassUrl = new URL("./assets/Grass.gltf", import.meta.url);
 const dogUrl = new URL("./assets/Dog.gltf", import.meta.url);
+const carUrl = new URL("./assets/Car.gltf", import.meta.url);
 
 // const texture = new THREE.TextureLoader().load(cloth);
 
@@ -144,6 +145,7 @@ new GLTFLoader().load(ballUrl.href, (result) => {
   scene.add(ball);
 });
 
+// Dog
 let dog = undefined;
 new GLTFLoader().load(dogUrl.href, (result) => {
   dog = result.scene.children[0];
@@ -153,8 +155,20 @@ new GLTFLoader().load(dogUrl.href, (result) => {
     }
   });
   dog.position.set(5, -1, 5);
-  dog.name = 'Dog'
   scene.add(dog);
+});
+
+// Car
+let car = undefined;
+new GLTFLoader().load(carUrl.href, (result) => {
+  car = result.scene.children[0];
+  car.traverse((node) => {
+    if (node.isMesh) {
+      node.castShadow = true;
+    }
+  });
+  car.position.set(5, -1, 15);
+  scene.add(car);
 });
 
 // Tree
@@ -321,6 +335,8 @@ let lastUsedKey = null;
 let currentObject = null;
 
 function proccessKeyboard() {
+  ballPreviousPosition.copy(ball.position);
+
   if (keyboard["d"]) {
     currentObject.position.x -= 0.25;
     camera.position.x -= 0.25;
@@ -412,6 +428,9 @@ function proccessKeyboard() {
     lastUsedKey = "s";
     console.log(currentObject.rotation.z);
   }
+  if(keyboard["f"] && rideCar){
+    console.log('naik');
+  }
 
   const objectPosition = new THREE.Vector3();
   currentObject.getWorldPosition(objectPosition);
@@ -433,11 +452,27 @@ function randomNumber() {
   return Math.floor(Math.random() * 50) + 1;
 }
 
-function checkCollision() {
-  const characterBox = new THREE.Box3().setFromObject(currentObject);
-  const ballBox = new THREE.Box3().setFromObject(ball);
+let rideCar = false;
 
-  if (characterBox.intersectsBox(ballBox)) {
+function checkCollision() {
+  const currentObjectBox = new THREE.Box3().setFromObject(currentObject);
+  const characterBox = new THREE.Box3()
+    .setFromObject(testingCharacter)
+    .expandByScalar(1.5);
+  const ballBox = new THREE.Box3().setFromObject(ball);
+  const carBox = new THREE.Box3().setFromObject(car);
+
+  if (currentObjectBox.intersectsBox(carBox)) {
+    currentObject.position.copy(characterPreviousPosition);
+  }
+
+  if (characterBox.intersectsBox(carBox)) {
+    rideCar = true;
+  } else {
+    rideCar = false;
+  }
+
+  if (currentObjectBox.intersectsBox(ballBox)) {
     // There is a collision between the character and the ball
     const ballSpeed = 1;
     const ballMovement = new THREE.Vector3();
@@ -457,31 +492,23 @@ function checkCollision() {
           ballMovement.x = -ballSpeed;
           break;
       }
-      ballPreviousPosition.copy(ball.position);
-      ball.position.add(ballMovement);
     }
+    ballPreviousPosition.copy(ball.position);
+    ball.position.add(ballMovement);
   }
 
   for (const building of buildings) {
     const buildingBox = new THREE.Box3().setFromObject(building);
-    if (characterBox.intersectsBox(buildingBox)) {
+    if (currentObjectBox.intersectsBox(buildingBox)) {
       // There is a collision, revert the character's position to the previous position
       currentObject.position.copy(characterPreviousPosition);
-    }
-    if (ballBox.intersectsBox(buildingBox)) {
-      // There is a collision between the ball and a building
-      ball.position.copy(ballPreviousPosition);
     }
   }
   for (const tree of trees) {
     const treeBox = new THREE.Box3().setFromObject(tree);
-    if (characterBox.intersectsBox(treeBox)) {
+    if (currentObjectBox.intersectsBox(treeBox)) {
       // There is a collision, revert the character's position to the previous position
       currentObject.position.copy(characterPreviousPosition);
-    }
-    if (ballBox.intersectsBox(treeBox)) {
-      // There is a collision between the ball and a building
-      ball.position.copy(ballPreviousPosition);
     }
   }
 }
