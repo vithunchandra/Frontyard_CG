@@ -15,8 +15,10 @@ const camera = new THREE.PerspectiveCamera(
   1000
 );
 const cameraOffset = new THREE.Vector3(0, 2, -5);
-
 const renderer = new THREE.WebGLRenderer({ antialias: true });
+
+//Camera Controls
+const controls = new OrbitControls(camera, renderer.domElement);
 
 //Import Assets
 const testingCharacterURL = new URL(
@@ -242,7 +244,96 @@ const roadUrl =
       }
     ]
   }
-// 68
+const waterUrl = {
+  url: new URL('./assets/Water.gltf', import.meta.url),
+  position: [
+    {
+      z: -60,
+      y: 0,
+      x: -50
+    }, {
+      z: -60,
+      y: 0,
+      x: -45
+    }, {
+      z: -60,
+      y: 0,
+      x: -40
+    },{
+      z: -60,
+      y: 0,
+      x: -35
+    }, {
+      z: -60,
+      y: 0,
+      x: -30
+    }, {
+      z: -60,
+      y: 0,
+      x: -25
+    },{
+      z: -60,
+      y: 0,
+      x: -20
+    }, {
+      z: -60,
+      y: 0,
+      x: -15
+    }, {
+      z: -60,
+      y: 0,
+      x: -10
+    },{
+      z: -60,
+      y: 0,
+      x: -5
+    }, {
+      z: -60,
+      y: 0,
+      x: 0
+    },{
+      z: -60,
+      y: 0,
+      x: 5
+    }, {
+      z: -60,
+      y: 0,
+      x: 10
+    }, {
+      z: -60,
+      y: 0,
+      x: 15
+    },{
+      z: -60,
+      y: 0,
+      x: 20
+    }, {
+      z: -60,
+      y: 0,
+      x: 25
+    }, {
+      z: -60,
+      y: 0,
+      x: 30
+    },{
+      z: -60,
+      y: 0,
+      x: 35
+    }, {
+      z: -60,
+      y: 0,
+      x: 40
+    }, {
+      z: -60,
+      y: 0,
+      x: 45
+    },{
+      z: -60,
+      y: 0,
+      x: 50
+    }
+  ]
+};
 const grassUrl = new URL("./assets/Grass.gltf", import.meta.url);
 const dogUrl = new URL("./assets/Dog.gltf", import.meta.url);
 const carUrl = new URL("./assets/Car.gltf", import.meta.url);
@@ -325,8 +416,24 @@ new GLTFLoader().load(fieldUrl.href, (result) => {
   object.position.set(0, -1.2, 70);
   object.rotation.z = -0.05
   scene.add(object);
-  field.push(object);
+  field = object;
 });
+
+// Water
+let water = [];
+for(const position of waterUrl.position){
+  new GLTFLoader().load(waterUrl.url.href, (result) => {
+    const object = result.scene.children[0];
+    object.traverse((node) => {
+      if(node.isMesh){
+        node.castShadow = true;
+      }
+    });
+    object.position.set(position.x, -0.8, -70);
+    scene.add(object);
+    water.push(object);
+  });
+}
 
 // Ball
 
@@ -365,7 +472,7 @@ new GLTFLoader().load(carUrl.href, (result) => {
     }
   });
   car.position.set(15, -0.7, 15);
-  car.rotation.z = 1.5
+  car.rotation.z = -3
   scene.add(car);
 });
 
@@ -509,9 +616,6 @@ planeMesh.receiveShadow = true;
 scene.add(planeMesh);
 
 //Control
-
-//Camera Controls
-const controls = new OrbitControls(camera, renderer.domElement);
 
 let keyboard = [];
 
