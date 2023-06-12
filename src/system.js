@@ -1,8 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "../node_modules/three/examples/jsm/controls/OrbitControls";
-import { TrackballControls } from "../node_modules/three/examples/jsm/controls/TrackballControls";
 import { GLTFLoader } from "../node_modules/three/examples/jsm/loaders/GLTFLoader";
-import * as cloth from "./assets/Cloth.png";
 import * as grassBaseTextureRaw from "./assets/Texture/lambert1_baseColor.png";
 import * as grassNormalTextureRaw from "./assets/Texture/lambert1_normal.png";
 
@@ -14,7 +12,6 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   1000
 );
-const cameraOffset = new THREE.Vector3(0, 2, -5);
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 
 //Camera Controls
@@ -57,9 +54,9 @@ const buildingUrl = [
       y: -1,
       z: 5,
     },
-  }
+  },
 ];
-const fieldUrl = new URL('./assets/SportsField.gltf', import.meta.url);
+const fieldUrl = new URL("./assets/SportsField.gltf", import.meta.url);
 const ballUrl = new URL("./assets/Ball.gltf", import.meta.url);
 const treesUrl = [
   //Rumah 1
@@ -73,20 +70,22 @@ const treesUrl = [
       y: -1,
       z: 10,
     },
-  },{
+  },
+  {
     url: new URL("./assets/Tree_1.gltf", import.meta.url),
     position: {
       x: -15,
       y: -1,
       z: 10,
-    }
-  },{ 
-    url: new URL('./assets/Tree_2.gltf', import.meta.url),
+    },
+  },
+  {
+    url: new URL("./assets/Tree_2.gltf", import.meta.url),
     position: {
       x: -10,
       y: -1,
-      z: -2
-    }
+      z: -2,
+    },
   },
   //Rumah 2
   // x: 20,
@@ -99,20 +98,22 @@ const treesUrl = [
       y: -1,
       z: 10,
     },
-  },{
+  },
+  {
     url: new URL("./assets/Tree_1.gltf", import.meta.url),
     position: {
       x: 8,
       y: -1,
       z: 2,
-    }
-  },{ 
-    url: new URL('./assets/Tree_2.gltf', import.meta.url),
+    },
+  },
+  {
+    url: new URL("./assets/Tree_2.gltf", import.meta.url),
     position: {
       x: 25,
       y: -1,
-      z: -5
-    }
+      z: -5,
+    },
   },
   //Rumah 3
   // x: -20,
@@ -125,20 +126,22 @@ const treesUrl = [
       y: -1,
       z: -23,
     },
-  },{
+  },
+  {
     url: new URL("./assets/Tree_1.gltf", import.meta.url),
     position: {
       x: -16,
       y: -1,
       z: -30,
-    }
-  },{ 
-    url: new URL('./assets/Tree_2.gltf', import.meta.url),
+    },
+  },
+  {
+    url: new URL("./assets/Tree_2.gltf", import.meta.url),
     position: {
       x: -22,
       y: -1,
-      z: -35
-    }
+      z: -35,
+    },
   },
   //Rumah 4
   // x: 20,
@@ -151,190 +154,223 @@ const treesUrl = [
       y: -1,
       z: -20,
     },
-  },{
+  },
+  {
     url: new URL("./assets/Tree_1.gltf", import.meta.url),
     position: {
       x: 20,
       y: -1,
       z: -30,
-    }
-  },{ 
-    url: new URL('./assets/Tree_2.gltf', import.meta.url),
+    },
+  },
+  {
+    url: new URL("./assets/Tree_2.gltf", import.meta.url),
     position: {
       x: 10,
       y: -1,
-      z: -35
-    }
+      z: -35,
+    },
   },
 ];
-const roadUrl =
-  {
-    url: new URL('./assets/Road_2.gltf', import.meta.url),
-    position: [
-      {
-        x: 4,
-        y: -1.2,
-        z: -30,
-        rotationZ: 1.62
-      }, {
-        x: 5.5,
-        y: -1.2,
-        z: 2,
-        rotationZ: 1.62
-      }, {
-        x: -15,
-        y: -1.2,
-        z: -8,
-        rotationZ: 0.05
-      }, {
-        x: 15,
-        y: -1.2,
-        z: -9.5,
-        rotationZ: 0.05
-      },{
-        x: 38,
-        y: -1.2,
-        z: -30,
-        rotationZ: 1.62
-      }, {
-        x: 39.5,
-        y: -1.2,
-        z: 2,
-        rotationZ: 1.62
-      },{
-        x: -30,
-        y: -1.2,
-        z: -30,
-        rotationZ: 1.62
-      }, {
-        x: -28.5,
-        y: -1.2,
-        z: 2,
-        rotationZ: 1.62
-      }, {
-        x: -24,
-        y: -1.2,
-        z: -42,
-        rotationZ: 0.05
-      }, {
-        x: 7,
-        y: -1.2,
-        z: -43.5,
-        rotationZ: 0.05
-      }, {
-        x: 20,
-        y: -1.2,
-        z: -44,
-        rotationZ: 0.05
-      }, {
-        x: -21,
-        y: -1.2,
-        z: 26,
-        rotationZ: 0.05
-      }, {
-        x: 10,
-        y: -1.2,
-        z: 24.5,
-        rotationZ: 0.05
-      }, {
-        x: 23,
-        y: -1.2,
-        z: 24,
-        rotationZ: 0.05
-      }
-    ]
-  }
+const roadUrl = {
+  url: new URL("./assets/Road_2.gltf", import.meta.url),
+  position: [
+    {
+      x: 4,
+      y: -1.2,
+      z: -30,
+      rotationZ: 1.62,
+    },
+    {
+      x: 5.5,
+      y: -1.2,
+      z: 2,
+      rotationZ: 1.62,
+    },
+    {
+      x: -15,
+      y: -1.2,
+      z: -8,
+      rotationZ: 0.05,
+    },
+    {
+      x: 15,
+      y: -1.2,
+      z: -9.5,
+      rotationZ: 0.05,
+    },
+    {
+      x: 38,
+      y: -1.2,
+      z: -30,
+      rotationZ: 1.62,
+    },
+    {
+      x: 39.5,
+      y: -1.2,
+      z: 2,
+      rotationZ: 1.62,
+    },
+    {
+      x: -30,
+      y: -1.2,
+      z: -30,
+      rotationZ: 1.62,
+    },
+    {
+      x: -28.5,
+      y: -1.2,
+      z: 2,
+      rotationZ: 1.62,
+    },
+    {
+      x: -24,
+      y: -1.2,
+      z: -42,
+      rotationZ: 0.05,
+    },
+    {
+      x: 7,
+      y: -1.2,
+      z: -43.5,
+      rotationZ: 0.05,
+    },
+    {
+      x: 20,
+      y: -1.2,
+      z: -44,
+      rotationZ: 0.05,
+    },
+    {
+      x: -21,
+      y: -1.2,
+      z: 26,
+      rotationZ: 0.05,
+    },
+    {
+      x: 10,
+      y: -1.2,
+      z: 24.5,
+      rotationZ: 0.05,
+    },
+    {
+      x: 23,
+      y: -1.2,
+      z: 24,
+      rotationZ: 0.05,
+    },
+  ],
+};
 const waterUrl = {
-  url: new URL('./assets/Water.gltf', import.meta.url),
+  url: new URL("./assets/Water.gltf", import.meta.url),
   position: [
     {
       z: -60,
       y: 0,
-      x: -50
-    }, {
+      x: -50,
+    },
+    {
       z: -60,
       y: 0,
-      x: -45
-    }, {
+      x: -45,
+    },
+    {
       z: -60,
       y: 0,
-      x: -40
-    },{
+      x: -40,
+    },
+    {
       z: -60,
       y: 0,
-      x: -35
-    }, {
+      x: -35,
+    },
+    {
       z: -60,
       y: 0,
-      x: -30
-    }, {
+      x: -30,
+    },
+    {
       z: -60,
       y: 0,
-      x: -25
-    },{
+      x: -25,
+    },
+    {
       z: -60,
       y: 0,
-      x: -20
-    }, {
+      x: -20,
+    },
+    {
       z: -60,
       y: 0,
-      x: -15
-    }, {
+      x: -15,
+    },
+    {
       z: -60,
       y: 0,
-      x: -10
-    },{
+      x: -10,
+    },
+    {
       z: -60,
       y: 0,
-      x: -5
-    }, {
+      x: -5,
+    },
+    {
       z: -60,
       y: 0,
-      x: 0
-    },{
+      x: 0,
+    },
+    {
       z: -60,
       y: 0,
-      x: 5
-    }, {
+      x: 5,
+    },
+    {
       z: -60,
       y: 0,
-      x: 10
-    }, {
+      x: 10,
+    },
+    {
       z: -60,
       y: 0,
-      x: 15
-    },{
+      x: 15,
+    },
+    {
       z: -60,
       y: 0,
-      x: 20
-    }, {
+      x: 20,
+    },
+    {
       z: -60,
       y: 0,
-      x: 25
-    }, {
+      x: 25,
+    },
+    {
       z: -60,
       y: 0,
-      x: 30
-    },{
+      x: 30,
+    },
+    {
       z: -60,
       y: 0,
-      x: 35
-    }, {
+      x: 35,
+    },
+    {
       z: -60,
       y: 0,
-      x: 40
-    }, {
+      x: 40,
+    },
+    {
       z: -60,
       y: 0,
-      x: 45
-    },{
+      x: 45,
+    },
+    {
       z: -60,
       y: 0,
-      x: 50
-    }
-  ]
+      x: 50,
+    },
+  ],
 };
-const grassUrl = new URL("./assets/Grass.gltf", import.meta.url);
 const dogUrl = new URL("./assets/Dog.gltf", import.meta.url);
 const carUrl = new URL("./assets/Car.gltf", import.meta.url);
 
@@ -372,7 +408,7 @@ new GLTFLoader().load(testingCharacterURL.href, (result) => {
 
 // Road
 let roads = [];
-for(const road of roadUrl.position){
+for (const road of roadUrl.position) {
   new GLTFLoader().load(roadUrl.url.href, (result) => {
     const object = result.scene.children[0];
     object.traverse((node) => {
@@ -414,18 +450,18 @@ new GLTFLoader().load(fieldUrl.href, (result) => {
     }
   });
   object.position.set(0, -1.2, 70);
-  object.rotation.z = -0.05
+  object.rotation.z = -0.05;
   scene.add(object);
   field = object;
 });
 
 // Water
 let water = [];
-for(const position of waterUrl.position){
+for (const position of waterUrl.position) {
   new GLTFLoader().load(waterUrl.url.href, (result) => {
     const object = result.scene.children[0];
     object.traverse((node) => {
-      if(node.isMesh){
+      if (node.isMesh) {
         node.castShadow = true;
       }
     });
@@ -472,7 +508,7 @@ new GLTFLoader().load(carUrl.href, (result) => {
     }
   });
   car.position.set(15, -0.7, 15);
-  car.rotation.z = -3
+  car.rotation.z = -3;
   scene.add(car);
 });
 
@@ -492,34 +528,6 @@ for (const tree of treesUrl) {
     trees.push(object);
   });
 }
-
-// Grass
-
-// let x = 50;
-// let z = 9;
-// const grassSpacing = 3; // Adjust this value to control the spacing between grass squares
-
-// for (let i = 0; i < 10; i++) {
-//   x = x - 3;
-//   z = 9; // Reset the z position for each iteration of the outer loop
-
-//   for (let j = 0; j < 15; j++) {
-//     new GLTFLoader().load(grassUrl.href, (result) => {
-//       const grass = result.scene.children[0].clone(); // Clone the grass object to create individual instances
-//       grass.traverse((node) => {
-//         if (node.isMesh) {
-//           node.castShadow = true;
-//         }
-//       });
-
-//       const grassX = x - j * grassSpacing; // Calculate the x position based on the loop index
-//       const grassZ = z - i * grassSpacing; // Calculate the z position based on the loop index
-
-//       grass.position.set(grassX, -1, grassZ);
-//       scene.add(grass);
-//     });
-//   }
-// }
 
 // Raycaster for object selection
 const raycaster = new THREE.Raycaster();
@@ -543,7 +551,6 @@ function onMouseDown(event) {
     testingCharacter,
     ball,
     dog,
-    car,
   ]);
   if (intersects.length > 0) {
     const clickedObject = intersects[0].object;
@@ -716,18 +723,22 @@ function proccessKeyboard() {
     lastUsedKey = "s";
   }
   if (keyboard["f"] && canRide) {
-    testingCharacter.position.set(100, 0.7, 0);    
-    testingCharacter.visible = false
+    testingCharacter.position.set(100, 0.7, 0);
+    testingCharacter.visible = false;
     currentObject = car;
     canRide = false;
-    inCar = true
+    inCar = true;
   }
 
-  if(keyboard["r"] && inCar){
-    testingCharacter.position.set(currentObject.position.x + 5, 0.7, currentObject.position.z)
-    testingCharacter.visible = true
-    currentObject = testingCharacter
-    inCar = false
+  if (keyboard["r"] && inCar) {
+    testingCharacter.position.set(
+      currentObject.position.x + 5,
+      0.7,
+      currentObject.position.z
+    );
+    testingCharacter.visible = true;
+    currentObject = testingCharacter;
+    inCar = false;
   }
 
   const objectPosition = new THREE.Vector3();
@@ -746,12 +757,9 @@ window.addEventListener("resize", () => {
 });
 
 //utils
-function randomNumber() {
-  return Math.floor(Math.random() * 50) + 1;
-}
 
 let canRide = false;
-let inCar = false
+let inCar = false;
 
 function checkCollision() {
   const currentObjectBox = new THREE.Box3().setFromObject(currentObject);
@@ -822,10 +830,28 @@ function checkCollision() {
   }
 }
 
-let clock = new THREE.Clock();
+// Declare a clock to track time
+const clock = new THREE.Clock();
+
+// Set the initial position of the light
+const radius = 300;
+let angle = 0;
 
 function draw() {
   requestAnimationFrame(draw);
+  // Calculate the new position of the light
+  const delta = clock.getDelta();
+  const speed = 0.1; // Adjust this value to change the rotation speed
+  angle += speed * delta;
+
+  const x = Math.cos(angle) * radius;
+  const y = 300; // Keep the same y position
+  const z = Math.sin(angle) * radius;
+
+  light.position.set(x, y, z);
+
+  // Update any helpers if needed
+  lightHelper.update();
   updateCharacterPosition();
   controls.update();
   renderer.render(scene, camera);
