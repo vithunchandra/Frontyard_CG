@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { OrbitControls } from "../node_modules/three/examples/jsm/controls/OrbitControls";
+import { PointerLockControls } from "../node_modules/three/examples/jsm/controls/PointerLockControls";
 import { GLTFLoader } from "../node_modules/three/examples/jsm/loaders/GLTFLoader";
 import * as grassBaseTextureRaw from "./assets/Texture/lambert1_baseColor.png";
 import * as grassNormalTextureRaw from "./assets/Texture/lambert1_normal.png";
@@ -15,7 +15,18 @@ const camera = new THREE.PerspectiveCamera(
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 
 //Camera Controls
-const controls = new OrbitControls(camera, renderer.domElement);
+const menuPanel = document.getElementById("menuPanel");
+const startButton = document.getElementById("startButton");
+startButton.addEventListener(
+  "click",
+  function () {
+    controls.lock();
+  },
+  false
+);
+const controls = new PointerLockControls(camera, renderer.domElement);
+controls.addEventListener("lock", () => (menuPanel.style.display = "none"));
+controls.addEventListener("unlock", () => (menuPanel.style.display = "block"));
 
 //Import Assets
 const testingCharacterURL = new URL(
@@ -547,11 +558,7 @@ function onMouseDown(event) {
   raycaster.setFromCamera(mouse, camera);
 
   // Check for intersections with character, ball, and dog
-  const intersects = raycaster.intersectObjects([
-    testingCharacter,
-    ball,
-    dog,
-  ]);
+  const intersects = raycaster.intersectObjects([testingCharacter, ball, dog]);
   if (intersects.length > 0) {
     const clickedObject = intersects[0].object;
     if (clickedObject.name == "Character") {
@@ -637,89 +644,32 @@ document.body.addEventListener("keyup", (evt) => {
 let characterPreviousPosition = new THREE.Vector3();
 let ballPreviousPosition = new THREE.Vector3();
 function updateCharacterPosition() {
-  characterPreviousPosition.copy(currentObject.position);
+  characterPreviousPosition.copy(camera.position);
   proccessKeyboard();
   checkCollision();
 }
 
 let lastUsedKey = null;
 let currentObject = null;
+let lastCameraPosition = undefined;
+const timer = new THREE.Clock();
 
 function proccessKeyboard() {
+  let speed = 5 * timer.getDelta();
   if (keyboard["d"]) {
-    currentObject.position.x -= 0.25;
-    camera.position.x -= 0.25;
-    if (currentObject.rotation.z > -1.4) {
-      currentObject.rotation.z -= 0.1;
-    }
-    if (currentObject.rotation.z < -1.5) {
-      currentObject.rotation.z += 0.1;
-    }
+    controls.moveRight(speed);
     lastUsedKey = "d";
   }
   if (keyboard["a"]) {
-    currentObject.position.x += 0.25;
-    camera.position.x += 0.25;
-    if (currentObject.rotation.z < 1.5 && currentObject.rotation.z > -1.5) {
-      currentObject.rotation.z += 0.1;
-    } else if (
-      currentObject.rotation.z < -1.5 &&
-      currentObject.rotation.z >= -3
-    ) {
-      if (currentObject.rotation.z - 0.1 <= -3) {
-        currentObject.rotation.z = 3;
-      } else {
-        currentObject.rotation.z -= 0.1;
-      }
-    } else if (
-      currentObject.rotation.z > 1.6 &&
-      currentObject.rotation.z <= 3
-    ) {
-      currentObject.rotation.z -= 0.1;
-    }
+    controls.moveRight(-speed);
     lastUsedKey = "a";
   }
   if (keyboard["w"]) {
-    currentObject.position.z += 0.25;
-    camera.position.z += 0.25;
-    if (Math.floor(currentObject.rotation) !== 0) {
-      if (currentObject.rotation.z >= -3 && currentObject.rotation.z <= 0) {
-        if (currentObject.rotation.z + 0.1 >= 0) {
-          currentObject.rotation.z = 0;
-        } else {
-          currentObject.rotation.z += 0.1;
-        }
-      } else if (
-        currentObject.rotation.z <= 3 &&
-        currentObject.rotation.z >= 0
-      ) {
-        if (currentObject.rotation.z - 0.1 <= 0) {
-          currentObject.rotation.z = 0;
-        } else {
-          currentObject.rotation.z -= 0.1;
-        }
-      }
-    }
+    controls.moveForward(speed);
     lastUsedKey = "w";
   }
   if (keyboard["s"]) {
-    currentObject.position.z -= 0.25;
-    camera.position.z -= 0.25;
-    if (currentObject.rotation.z > -3 && currentObject.rotation.z < 3) {
-      if (currentObject.rotation.z <= 0) {
-        if (currentObject.rotation.z - 0.1 <= -3) {
-          currentObject.rotation.z = 3;
-        } else {
-          currentObject.rotation.z -= 0.1;
-        }
-      } else if (currentObject.rotation.z >= 0) {
-        if (currentObject.rotation.z + 0.1 >= 3) {
-          currentObject.rotation.z = -3;
-        } else {
-          currentObject.rotation.z += 0.1;
-        }
-      }
-    }
+    controls.moveForward(-speed);
     lastUsedKey = "s";
   }
   if (keyboard["f"] && canRide) {
@@ -732,22 +682,18 @@ function proccessKeyboard() {
 
   if (keyboard["r"] && inCar) {
     testingCharacter.position.set(
-      currentObject.position.x + 5,
+      camera.position.x + 5,
       0.7,
-      currentObject.position.z
+      camera.position.z
     );
     testingCharacter.visible = true;
     currentObject = testingCharacter;
     inCar = false;
   }
 
-  const objectPosition = new THREE.Vector3();
-  currentObject.getWorldPosition(objectPosition);
-  camera.lookAt(currentObject.position);
-  controls.target.copy(objectPosition);
-  controls.update();
-  //   controls.target.copy(currentObject.position);
-  //   controls.update();
+  lastCameraPosition = camera.position;
+
+  testingCharacter.position.copy(camera.position);
 }
 
 window.addEventListener("resize", () => {
@@ -770,7 +716,7 @@ function checkCollision() {
   const carBox = new THREE.Box3().setFromObject(car);
 
   if (currentObjectBox.intersectsBox(carBox) && canRide) {
-    currentObject.position.copy(characterPreviousPosition);
+    camera.position.copy(characterPreviousPosition);
   }
 
   if (characterBox.intersectsBox(carBox)) {
@@ -779,28 +725,14 @@ function checkCollision() {
     canRide = false;
   }
 
+
   if (currentObjectBox.intersectsBox(ballBox)) {
     // There is a collision between the character and the ball
-    const ballSpeed = 1;
+    const ballSpeed = camera.position.sub(lastCameraPosition);
     const ballMovement = new THREE.Vector3();
 
     if (currentObject !== ball) {
-      switch (lastUsedKey) {
-        case "w":
-          ballMovement.z = ballSpeed;
-          break;
-        case "a":
-          ballMovement.x = ballSpeed;
-          break;
-        case "s":
-          ballMovement.z = -ballSpeed;
-          break;
-        case "d":
-          ballMovement.x = -ballSpeed;
-          break;
-      }
-      ballPreviousPosition.copy(ball.position);
-      ball.position.add(ballMovement);
+      ball.position.add(ballSpeed);
     }
   }
 
@@ -808,11 +740,11 @@ function checkCollision() {
     const buildingBox = new THREE.Box3().setFromObject(building);
     if (currentObjectBox.intersectsBox(buildingBox)) {
       // There is a collision, revert the character's position to the previous position
-      currentObject.position.copy(characterPreviousPosition);
+      camera.position.copy(characterPreviousPosition);
     }
     if (ballBox.intersectsBox(buildingBox)) {
       // There is a collision, revert the character's position to the previous position
-      currentObject.position.copy(characterPreviousPosition);
+      camera.position.copy(characterPreviousPosition);
       ball.position.copy(ballPreviousPosition);
     }
   }
@@ -820,11 +752,11 @@ function checkCollision() {
     const treeBox = new THREE.Box3().setFromObject(tree).expandByScalar(0.3);
     if (currentObjectBox.intersectsBox(treeBox)) {
       // There is a collision, revert the character's position to the previous position
-      currentObject.position.copy(characterPreviousPosition);
+      camera.position.copy(characterPreviousPosition);
     }
     if (ballBox.intersectsBox(treeBox)) {
       // There is a collision, revert the character's position to the previous position
-      currentObject.position.copy(characterPreviousPosition);
+      camera.position.copy(characterPreviousPosition);
       ball.position.copy(ballPreviousPosition);
     }
   }
@@ -853,7 +785,6 @@ function draw() {
   // Update any helpers if needed
   lightHelper.update();
   updateCharacterPosition();
-  controls.update();
   renderer.render(scene, camera);
 }
 
