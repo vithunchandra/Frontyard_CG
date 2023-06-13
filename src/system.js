@@ -27,6 +27,9 @@ startButton.addEventListener(
 const controls = new PointerLockControls(camera, renderer.domElement);
 controls.addEventListener("lock", () => (menuPanel.style.display = "none"));
 controls.addEventListener("unlock", () => (menuPanel.style.display = "block"));
+camera.position.y = 1.5;
+controls.camera.position.y = 1.5;
+controls.maxPolarAngle = Math.PI * 2;
 
 //Import Assets
 const testingCharacterURL = new URL(
@@ -403,6 +406,7 @@ grassNormalTexture.wrapT = THREE.RepeatWrapping;
 grassNormalTexture.repeat.set(50, 50);
 
 // Character
+let objects = [];
 let testingCharacter = undefined;
 new GLTFLoader().load(testingCharacterURL.href, (result) => {
   testingCharacter = result.scene.children[0];
@@ -412,6 +416,7 @@ new GLTFLoader().load(testingCharacterURL.href, (result) => {
     }
   });
   testingCharacter.position.set(0, 0.7, 0);
+  currentObject = testingCharacter;
   controls.target.copy(testingCharacter.position);
   controls.update();
   scene.add(testingCharacter);
@@ -493,6 +498,7 @@ new GLTFLoader().load(ballUrl.href, (result) => {
     }
   });
   ball.position.set(0, -0.7, 5);
+  objects.push(ball);
   scene.add(ball);
 });
 
@@ -506,6 +512,7 @@ new GLTFLoader().load(dogUrl.href, (result) => {
     }
   });
   dog.position.set(5, -1, 5);
+  objects.push(dog);
   scene.add(dog);
 });
 
@@ -544,32 +551,116 @@ for (const tree of treesUrl) {
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
-// Event listeners for mouse interaction
-window.addEventListener("mousemove", onMouseMove);
-window.addEventListener("mousedown", onMouseDown);
+document.addEventListener('mousemove', onMouseMove, false);
+document.addEventListener('mousedown', onMouseDown, false);
+let highlightedObject = null; // Variable to store the highlighted object
+let defaultColor = new THREE.Color(); // Variable to store the default texture map
+
 
 function onMouseMove(event) {
-  // Calculate normalized device coordinates
+  // Calculate normalized device coordinates (NDC) from mouse position
   mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+
+  // Update the raycaster with the new mouse coordinates
+  raycaster.setFromCamera(mouse, camera);
+
+  // Check for object intersections and provide visual feedback
+  const intersects = raycaster.intersectObjects(objects);
+  if (intersects.length > 0) {
+    // An intersection occurred, handle it accordingly
+    const intersectedObject = intersects[0].object;
+    // Provide visual feedback to the intersected object
+    setHighlighted(intersectedObject);
+  } else {
+    // No intersection, remove visual feedback from any previously highlighted object
+    clearHighlighted();
+  }
 }
 
 function onMouseDown(event) {
-  raycaster.setFromCamera(mouse, camera);
-
-  // Check for intersections with character, ball, and dog
-  const intersects = raycaster.intersectObjects([testingCharacter, ball, dog]);
-  if (intersects.length > 0) {
-    const clickedObject = intersects[0].object;
-    if (clickedObject.name == "Character") {
-      currentObject = testingCharacter;
-    } else if (clickedObject.name.includes("FootballBall")) {
-      currentObject = ball;
-    } else if (clickedObject.name.includes("Dog")) {
-      currentObject = dog;
+  // Check if left mouse button is clicked
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects(objects);
+    if (intersects.length > 0) {
+      // An intersection occurred, handle it accordingly
+      const intersectedObject = intersects[0].object;
+      // Perform the operation on the intersected object
+      performOperation(intersectedObject);
     }
+}
+
+function setHighlighted(object) {
+  // Remove the highlight effect from the previously highlighted object, if any
+  clearHighlighted();
+
+  // Store the current highlighted object
+  highlightedObject = object;
+  defaultColor.copy(object.material.color);
+
+  // Apply the highlight effect to the new highlighted object
+  // Your visual feedback logic here
+  // For example, change the object's material or color to indicate it is highlighted
+  object.material.color.set(0xff0000);
+  object.material.needsUpdate = true;
+}
+
+function clearHighlighted() {
+  // Check if there is a highlighted object
+  if (highlightedObject) {
+    // Reset the appearance of the highlighted object
+    // Your logic to remove the highlight effect from the previously highlighted object
+    // For example, restore its material or color to the default state
+    highlightedObject.material.color.set(0xffffff);
+
+    // Reset the texture map to the default texture
+    highlightedObject.material.needsUpdate = true;
+
+    // Clear the highlighted object variable
+    highlightedObject = null;
   }
 }
+
+function performOperation(clickedObject) {
+  if (clickedObject.name == "Character") {
+    currentObject = testingCharacter;
+    objects = [ball, dog];
+  } else if (clickedObject.name.includes("FootballBall")) {
+    currentObject = ball;
+    objects = [testingCharacter, dog];
+  } else if (clickedObject.name.includes("Dog")) {
+    currentObject = dog;
+    objects = [testingCharacter, ball];
+  }
+  camera.position.set(currentObject.position.x, currentObject.position.y + 0.2, currentObject.position.z);
+  currentObject.visible = false;
+}
+// // Event listeners for mouse interaction
+// window.addEventListener("mousemove", onMouseMove);
+// window.addEventListener("mousedown", onMouseDown);
+
+// function onMouseMove(event) {
+//   // Calculate normalized device coordinates
+//   mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+//   mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+// }
+
+// function onMouseDown(event) {
+//   raycaster.setFromCamera(mouse, camera);
+
+//   // Check for intersections with character, ball, and dog
+//   const intersects = raycaster.intersectObjects([testingCharacter, ball, dog]);
+//   if (intersects.length > 0) {
+//     const clickedObject = intersects[0].object;
+//     if (clickedObject.name == "Character") {
+//       currentObject = testingCharacter;
+//     } else if (clickedObject.name.includes("FootballBall")) {
+//       currentObject = ball;
+//     } else if (clickedObject.name.includes("Dog")) {
+//       currentObject = dog;
+//     }
+//   }
+// }
 
 // Add renderer to the document
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -584,8 +675,6 @@ function render() {
 render();
 
 //Settings
-camera.position.set(0, 0, 10);
-
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap; //THREE.BasicShadowMap | THREE.PCFShadowMap |  THREE.VSMShadowMap | THREE.PCFSoftShadowMap
 
@@ -641,17 +730,15 @@ document.body.addEventListener("keyup", (evt) => {
   keyboard[evt.key] = false;
 });
 
-let characterPreviousPosition = new THREE.Vector3();
+let cameraPreviousPosition = new THREE.Vector3();
 let ballPreviousPosition = new THREE.Vector3();
 function updateCharacterPosition() {
-  characterPreviousPosition.copy(camera.position);
+  cameraPreviousPosition.copy(camera.position);
   proccessKeyboard();
   checkCollision();
 }
 
-let lastUsedKey = null;
-let currentObject = null;
-let lastCameraPosition = undefined;
+let currentObject = undefined;
 const timer = new THREE.Clock();
 
 function proccessKeyboard() {
@@ -690,10 +777,7 @@ function proccessKeyboard() {
     currentObject = testingCharacter;
     inCar = false;
   }
-
-  lastCameraPosition = camera.position;
-
-  testingCharacter.position.copy(camera.position);
+  currentObject.position.set(camera.position.x, currentObject.position.y, camera.position.z);
 }
 
 window.addEventListener("resize", () => {
@@ -716,7 +800,7 @@ function checkCollision() {
   const carBox = new THREE.Box3().setFromObject(car);
 
   if (currentObjectBox.intersectsBox(carBox) && canRide) {
-    camera.position.copy(characterPreviousPosition);
+    camera.position.copy(cameraPreviousPosition);
   }
 
   if (characterBox.intersectsBox(carBox)) {
@@ -728,11 +812,10 @@ function checkCollision() {
 
   if (currentObjectBox.intersectsBox(ballBox)) {
     // There is a collision between the character and the ball
-    const ballSpeed = camera.position.sub(lastCameraPosition);
-    const ballMovement = new THREE.Vector3();
-
+    const ballSpeed = new THREE.Vector3(camera.position.x - cameraPreviousPosition.x, 0, camera.position.z - cameraPreviousPosition.z);
     if (currentObject !== ball) {
       ball.position.add(ballSpeed);
+      ballPreviousPosition.copy(ball.position);
     }
   }
 
@@ -740,11 +823,12 @@ function checkCollision() {
     const buildingBox = new THREE.Box3().setFromObject(building);
     if (currentObjectBox.intersectsBox(buildingBox)) {
       // There is a collision, revert the character's position to the previous position
-      camera.position.copy(characterPreviousPosition);
+      camera.position.copy(cameraPreviousPosition);
+
     }
     if (ballBox.intersectsBox(buildingBox)) {
       // There is a collision, revert the character's position to the previous position
-      camera.position.copy(characterPreviousPosition);
+      camera.position.copy(cameraPreviousPosition);
       ball.position.copy(ballPreviousPosition);
     }
   }
@@ -752,11 +836,11 @@ function checkCollision() {
     const treeBox = new THREE.Box3().setFromObject(tree).expandByScalar(0.3);
     if (currentObjectBox.intersectsBox(treeBox)) {
       // There is a collision, revert the character's position to the previous position
-      camera.position.copy(characterPreviousPosition);
+      camera.position.copy(cameraPreviousPosition);
     }
     if (ballBox.intersectsBox(treeBox)) {
       // There is a collision, revert the character's position to the previous position
-      camera.position.copy(characterPreviousPosition);
+      camera.position.copy(cameraPreviousPosition);
       ball.position.copy(ballPreviousPosition);
     }
   }
