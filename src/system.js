@@ -10,7 +10,7 @@ const camera = new THREE.PerspectiveCamera(
   50,
   window.innerWidth / window.innerHeight,
   0.1,
-  1000
+  5000
 );
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 
@@ -385,6 +385,28 @@ const waterUrl = {
     },
   ],
 };
+const lampUrl = {
+  url: new URL('./assets/lamp.gltf', import.meta.url),
+  position: [
+    {
+      x: 25,
+      y: -1,
+      z: 10,
+    },{
+      x: -30,
+      y: -1,
+      z: -25,
+    },{
+      x: 15,
+      y: -1,
+      z: -25,
+    },{
+      x: -10,
+      y: -1,
+      z: 10,
+    }
+  ]
+}
 const dogUrl = new URL("./assets/Dog.gltf", import.meta.url);
 const carUrl = new URL("./assets/Car.gltf", import.meta.url);
 
@@ -416,9 +438,8 @@ new GLTFLoader().load(testingCharacterURL.href, (result) => {
     }
   });
   testingCharacter.position.set(0, 0.7, 0);
+  testingCharacter.visible = false;
   currentObject = testingCharacter;
-  controls.target.copy(testingCharacter.position);
-  controls.update();
   scene.add(testingCharacter);
 });
 
@@ -454,6 +475,21 @@ for (const building of buildingUrl) {
     object.position.set(position.x, position.y, position.z);
     scene.add(object);
     buildings.push(object);
+  });
+}
+
+let lamps = [];
+for(const lamp of lampUrl.position){
+  new GLTFLoader().load(lampUrl.url.href, (result) => {
+    const object = result.scene.children[0];
+    object.traverse((node) => {
+      if (node.isMesh) {
+        node.castShadow = true;
+      }
+    });
+    object.position.set(lamp.x, lamp.y, lamp.z);
+    scene.add(object);
+    lamps.push(object);
   });
 }
 
@@ -525,8 +561,9 @@ new GLTFLoader().load(carUrl.href, (result) => {
       node.castShadow = true;
     }
   });
-  car.position.set(15, -0.7, 15);
+  car.position.set(15, -0.7, 20);
   car.rotation.z = -3;
+  car.name = "car";
   scene.add(car);
 });
 
@@ -622,6 +659,10 @@ function clearHighlighted() {
 }
 
 function performOperation(clickedObject) {
+  currentObject.visible = true;
+  if(currentObject === ball){
+    currentObject.position.y = -0.5;
+  }
   if (clickedObject.name == "Character") {
     currentObject = testingCharacter;
     objects = [ball, dog];
@@ -632,7 +673,8 @@ function performOperation(clickedObject) {
     currentObject = dog;
     objects = [testingCharacter, ball];
   }
-  camera.position.set(currentObject.position.x, currentObject.position.y + 0.2, currentObject.position.z);
+  camera.position.set(currentObject.position.x, currentObject.position.y + 1, currentObject.position.z);
+  cameraHeight = camera.position.y;
   currentObject.visible = false;
 }
 // // Event listeners for mouse interaction
@@ -705,6 +747,39 @@ scene.add(new THREE.CameraHelper(light.shadow.camera));
 const lightHelper = new THREE.DirectionalLightHelper(light, 10, 0xff00ff);
 scene.add(lightHelper);
 
+// Daftar posisi lampu jalan
+const lightPositions = [
+  { x: 25, y: 7, z: 10 },
+  { x: -30, y: 7, z: -25 },
+  { x: 15, y: 7, z: -25 },
+  { x: -10, y: 7, z: 10 },
+];
+
+const streetLights = [];
+const lightColor = 0xffcc00;
+for (let i = 0; i < lightPositions.length; i++) {
+  const lightPosition = lightPositions[i];
+
+  // Membuat lampu jalan sebagai lampu titik
+  const streetLight = new THREE.PointLight(lightColor, 0.5);
+  streetLight.position.set(lightPosition.x, lightPosition.y, lightPosition.z);
+  scene.add(streetLight);
+
+  streetLights.push(streetLight);
+}
+
+const lightHelpers = [];
+
+for (let i = 0; i < streetLights.length; i++) {
+  const streetLight = streetLights[i];
+
+  // Buat lightHelper untuk setiap lampu jalan
+  const lightHelper = new THREE.PointLightHelper(streetLight, 0.5);
+  scene.add(lightHelper);
+
+  lightHelpers.push(lightHelper);
+}
+
 //Plane
 const plane = new THREE.PlaneGeometry(1000, 1000, 100, 100);
 const planeMaterial = new THREE.MeshPhongMaterial({
@@ -717,6 +792,58 @@ planeMesh.rotation.x = -Math.PI / 2;
 planeMesh.position.set(0, -1, 0);
 planeMesh.receiveShadow = true;
 scene.add(planeMesh);
+
+// Langkah 2: Membuat langit
+const skyGeometry = new THREE.SphereGeometry(1000, 32, 32);
+const skyMaterial = new THREE.MeshBasicMaterial({ color: 0x87ceeb, side: THREE.BackSide });
+const sky = new THREE.Mesh(skyGeometry, skyMaterial);
+scene.add(sky);
+
+// Langkah 3: Membuat awan
+const cloudGeometry = new THREE.SphereGeometry(10, 32, 32);
+const cloudMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.8 });
+
+const cloudGroupCount = 5; // Jumlah grup awan
+const cloudsPerGroup = 10; // Jumlah awan dalam setiap grup
+const groupDistance = 200; // Jarak antara grup awan
+
+const cloudGroups = []; // Array untuk menyimpan grup awan
+
+for (let i = 0; i < cloudGroupCount; i++) {
+  const cloudGroup = new THREE.Group();
+
+  for (let j = 0; j < cloudsPerGroup; j++) {
+    const cloud = new THREE.Mesh(cloudGeometry, cloudMaterial);
+
+    // Atur posisi acak awan dalam grup
+    const radius = 50;
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.random() * Math.PI * 2;
+    const x = radius * Math.sin(phi) * Math.cos(theta);
+    const y = radius * Math.sin(phi) * Math.sin(theta);
+    const z = radius * Math.cos(phi);
+
+    // Periksa apakah posisi awan kurang dari 20 di sumbu y, jika ya, atur ke 20
+    if (y < 20) {
+      cloud.position.set(x, 20, z);
+    } else {
+      cloud.position.set(x, y, z);
+    }
+
+    cloudGroup.add(cloud);
+  }
+
+  // Atur posisi acak grup awan
+  const groupRadius = groupDistance * i;
+  const groupTheta = Math.random() * Math.PI * 2;
+  const groupX = groupRadius * Math.sin(groupTheta);
+  const groupZ = groupRadius * Math.cos(groupTheta);
+  cloudGroup.position.set(groupX, 0, groupZ);
+
+  cloudGroups.push(cloudGroup); // Masukkan grup awan ke dalam array
+
+  scene.add(cloudGroup);
+}
 
 //Control
 
@@ -731,7 +858,9 @@ document.body.addEventListener("keyup", (evt) => {
 });
 
 let cameraPreviousPosition = new THREE.Vector3();
+let carPreviousPosition = new THREE.Vector3();
 let ballPreviousPosition = new THREE.Vector3();
+
 function updateCharacterPosition() {
   cameraPreviousPosition.copy(camera.position);
   proccessKeyboard();
@@ -745,39 +874,39 @@ function proccessKeyboard() {
   let speed = 5 * timer.getDelta();
   if (keyboard["d"]) {
     controls.moveRight(speed);
-    lastUsedKey = "d";
   }
   if (keyboard["a"]) {
     controls.moveRight(-speed);
-    lastUsedKey = "a";
   }
   if (keyboard["w"]) {
     controls.moveForward(speed);
-    lastUsedKey = "w";
   }
   if (keyboard["s"]) {
     controls.moveForward(-speed);
-    lastUsedKey = "s";
   }
   if (keyboard["f"] && canRide) {
-    testingCharacter.position.set(100, 0.7, 0);
+    testingCharacter.position.set(1000, 1000, 1000);
     testingCharacter.visible = false;
     currentObject = car;
+    camera.position.set(currentObject.position.x, currentObject.position.y + 5, currentObject.position.z - 1);
+    cameraPreviousPosition.copy(camera.position);
     canRide = false;
     inCar = true;
   }
 
   if (keyboard["r"] && inCar) {
-    testingCharacter.position.set(
-      camera.position.x + 5,
-      0.7,
-      camera.position.z
-    );
-    testingCharacter.visible = true;
+    camera.position.set(camera.position.x + 5, testingCharacter.position.y + 0.2, currentObject.position.z);
     currentObject = testingCharacter;
+    currentObject.position.set(camera.position.x, currentObject.position.y-0.2, camera.position.z);
     inCar = false;
   }
-  currentObject.position.set(camera.position.x, currentObject.position.y, camera.position.z);
+  if(currentObject === car){
+    const carSpeed = new THREE.Vector3(camera.position.x - cameraPreviousPosition.x, 0, camera.position.z - cameraPreviousPosition.z);
+    currentObject.position.add(carSpeed);
+    currentObject.rotation.z = camera.rotation.z;
+  }else{
+    currentObject.position.set(camera.position.x, currentObject.position.y, camera.position.z);
+  }
 }
 
 window.addEventListener("resize", () => {
@@ -790,6 +919,7 @@ window.addEventListener("resize", () => {
 
 let canRide = false;
 let inCar = false;
+let ballCollide = false;
 
 function checkCollision() {
   const currentObjectBox = new THREE.Box3().setFromObject(currentObject);
@@ -799,7 +929,8 @@ function checkCollision() {
   const ballBox = new THREE.Box3().setFromObject(ball);
   const carBox = new THREE.Box3().setFromObject(car);
 
-  if (currentObjectBox.intersectsBox(carBox) && canRide) {
+  if (characterBox.intersectsBox(carBox) && canRide) {
+    console.log("canRide")
     camera.position.copy(cameraPreviousPosition);
   }
 
@@ -813,9 +944,8 @@ function checkCollision() {
   if (currentObjectBox.intersectsBox(ballBox)) {
     // There is a collision between the character and the ball
     const ballSpeed = new THREE.Vector3(camera.position.x - cameraPreviousPosition.x, 0, camera.position.z - cameraPreviousPosition.z);
-    if (currentObject !== ball) {
+    if (currentObject !== ball && !ballCollide) {
       ball.position.add(ballSpeed);
-      ballPreviousPosition.copy(ball.position);
     }
   }
 
@@ -824,11 +954,9 @@ function checkCollision() {
     if (currentObjectBox.intersectsBox(buildingBox)) {
       // There is a collision, revert the character's position to the previous position
       camera.position.copy(cameraPreviousPosition);
-
     }
     if (ballBox.intersectsBox(buildingBox)) {
       // There is a collision, revert the character's position to the previous position
-      camera.position.copy(cameraPreviousPosition);
       ball.position.copy(ballPreviousPosition);
     }
   }
@@ -841,7 +969,6 @@ function checkCollision() {
     if (ballBox.intersectsBox(treeBox)) {
       // There is a collision, revert the character's position to the previous position
       camera.position.copy(cameraPreviousPosition);
-      ball.position.copy(ballPreviousPosition);
     }
   }
 }
@@ -852,6 +979,11 @@ const clock = new THREE.Clock();
 // Set the initial position of the light
 const radius = 300;
 let angle = 0;
+// Langkah 4: Animasi langit dan pencahayaan
+const morningColor = new THREE.Color(0x87ceeb); // Warna langit pagi
+const nightColor = new THREE.Color(0x000011); // Warna langit malam
+
+const animationDuration = 60; // Durasi animasi per transisi (pagi-malam dan malam-pagi)
 
 function draw() {
   requestAnimationFrame(draw);
@@ -865,6 +997,53 @@ function draw() {
   const z = Math.sin(angle) * radius;
 
   light.position.set(x, y, z);
+
+  const elapsedTime = clock.getElapsedTime();
+  const t = (elapsedTime % animationDuration) / animationDuration; // Menghitung kemajuan animasi (0 hingga 1)
+
+  if (t <= 0.5) {
+    // Pagi ke malam
+    const interpolatedColor = new THREE.Color().lerpColors(morningColor, nightColor, t * 2);
+    sky.material.color.copy(interpolatedColor);
+    light.intensity = 1 - t * 2; // Intensitas pencahayaan berkurang seiring dengan kemajuan animasi
+  } else {
+    // Malam ke pagi
+    const interpolatedColor = new THREE.Color().lerpColors(nightColor, morningColor, (t - 0.5) * 2);
+    sky.material.color.copy(interpolatedColor);
+    light.intensity = (t - 0.5) * 2; // Intensitas pencahayaan bertambah seiring dengan kemajuan animasi
+  }
+
+  if(t >= 0.25 && t <= 0.75){
+    // Mengaktifkan lampu jalan saat malam
+    streetLights.forEach((streetLight) => {
+      streetLight.visible = true;
+    });
+
+    // Menampilkan lightHelper saat malam
+    lightHelpers.forEach((lightHelper) => {
+      lightHelper.visible = true;
+    });
+  }else{
+    // Mengaktifkan lampu jalan saat malam
+    streetLights.forEach((streetLight) => {
+      streetLight.visible = false;
+    });
+
+    // Menampilkan lightHelper saat malam
+    lightHelpers.forEach((lightHelper) => {
+      lightHelper.visible = false;
+    });
+  }
+
+// Putar semua grup dan awan di dalamnya mengelilingi pusat dunia
+const rotationSpeed = 0.001;
+
+cloudGroups.forEach((group) => {
+  if (group instanceof THREE.Group) {
+    group.rotation.y += rotationSpeed;
+    group.position.applyAxisAngle(new THREE.Vector3(0, 1, 0), rotationSpeed);
+  }
+});
 
   // Update any helpers if needed
   lightHelper.update();
